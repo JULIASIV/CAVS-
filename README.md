@@ -1,4 +1,3 @@
-central attendance variance  system
 CAVS/
 ├── 📁 backend/                 # FastAPI backend application
 │   ├── app/
