@@ -45,3 +45,37 @@ CAVS/
 ├── README.md
 ├── LICENSE
 └── .gitignore
+
+
+
+✨ Features
+
+    🤖 Facial Recognition: Real-time face detection and identification using advanced ML models
+
+    📱 Multi-device Support: Raspberry Pi and ESP32 integration for flexible deployment
+
+    🌐 Web Dashboard: Modern React-based administration interface
+
+    🔗 RESTful API: FastAPI backend with comprehensive endpoints
+
+    🐳 Containerized: Docker support for easy deployment and scaling
+
+    🔒 Privacy-focused: Clear privacy policy and data protection measures
+
+    📊 Real-time Monitoring: Live attendance tracking and variance detection
+
+    🔔 Notifications: Automated alerts for attendance anomalies
+
+🛠️ Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+    Python 3.9+
+
+    Node.js 16+
+
+    Docker and Docker Compose (optional)
+
+    Raspberry Pi with camera module (for device deployment)
+
+    ESP32 microcontroller (optional)
