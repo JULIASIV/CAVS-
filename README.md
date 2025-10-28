@@ -1,96 +1,81 @@
-# Smart Attendance System - Frontend
+CAVS/
+├── 📁 backend/                 # FastAPI backend application
+│   ├── app/
+│   │   ├── main.py            # Application entry point
+│   │   ├── api/               # API routes and endpoints
+│   │   ├── models/            # Data models and schemas
+│   │   ├── services/          # Business logic and services
+│   │   ├── db/                # Database configuration and migrations
+│   │   └── tests/             # Backend test suite
+│   ├── Dockerfile
+│   └── requirements.txt
+│
+├── 📁 inference/              # Machine learning inference engine
+│   ├── models/               # Pre-trained ML models
+│   ├── embedder.py           # Facial embedding generation
+│   └── tests/                # Model inference tests
+│
+├── 📁 frontend/              # React frontend application
+│   ├── public/               # Static assets
+│   ├── src/                  # React components and logic
+│   └── package.json
+│
+├── 📁 devices/               # Hardware device implementations
+│   ├── pi/                   # Raspberry Pi capture scripts
+│   │   └── capture_script.py
+│   └── esp32/                # ESP32 microcontroller code
+│       └── README.md
+│
+├── 📁 infra/                 # Infrastructure configurations
+│   ├── docker-compose.yml    # Local development setup
+│   └── k8s/                  # Kubernetes deployment (optional)
+│
+├── 📁 docs/                  # Documentation
+│   ├── architecture.md       # System architecture
+│   ├── api.md               # API documentation
+│   ├── deployment.md        # Deployment guide
+│   └── privacy_policy.md    # Privacy policy
+│
+├── 📁 .github/              # GitHub configurations
+│   ├── ISSUE_TEMPLATE/
+│   ├── workflows/
+│   │   └── ci.yml          # Continuous integration
+│   └── PULL_REQUEST_TEMPLATE.md
+│
+├── README.md
+├── LICENSE
+└── .gitignore
 
-Smart Facial Recognition-Based Attendance Management System Frontend Application
 
-## Project Overview
 
-This is the frontend web interface for the Smart Facial Recognition-Based Attendance Management System. It provides a modern, responsive UI for teachers and administrators to manage student attendance records.
+✨ Features
 
-## Features
+    🤖 Facial Recognition: Real-time face detection and identification using advanced ML models
 
-- **Role-Based Access Control** (Teacher/Admin)
-- **User Authentication** with secure login
-- **Attendance Dashboard** with real-time statistics
-- **Attendance Records Management** - view, verify, and modify attendance
-- **Data Export** - CSV export functionality
-- **Student Management** - view enrolled students
-- **Modern UI** with responsive design
-- **Dark Mode Support**
+    📱 Multi-device Support: Raspberry Pi and ESP32 integration for flexible deployment
 
-## Tech Stack
+    🌐 Web Dashboard: Modern React-based administration interface
 
-- **React 18** - UI Framework
-- **React Router** - Navigation
-- **Axios** - HTTP Client
-- **Tailwind CSS** - Styling
-- **Heroicons** - Icons
-- **Date-fns** - Date formatting
+    🔗 RESTful API: FastAPI backend with comprehensive endpoints
 
-## Project Structure
+    🐳 Containerized: Docker support for easy deployment and scaling
 
-```
-src/
-├── components/       # Reusable UI components
-├── pages/           # Page components
-├── contexts/        # React contexts
-├── services/        # API service functions
-├── utils/           # Utility functions
-├── styles/          # Global styles
-└── assets/          # Images and static files
-```
+    🔒 Privacy-focused: Clear privacy policy and data protection measures
 
-## Getting Started
+    📊 Real-time Monitoring: Live attendance tracking and variance detection
 
-### Prerequisites
+    🔔 Notifications: Automated alerts for attendance anomalies
 
-- Node.js (v14 or higher)
-- npm or yarn
+🛠️ Prerequisites
 
-### Installation
+Before you begin, ensure you have the following installed:
 
-1. Install dependencies:
-```bash
-npm install
-```
+    Python 3.9+
 
-2. Start the development server:
-```bash
-npm start
-```
+    Node.js 16+
 
-3. Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+    Docker and Docker Compose (optional)
 
-### Building for Production
+    Raspberry Pi with camera module (for device deployment)
 
-```bash
-npm run build
-```
-
-This creates an optimized production build in the `build/` folder.
-
-## User Roles
-
-### Admin
-- Full access to all features
-- View all attendance records
-- Manage users and settings
-- Export data
-- Approve/Modify attendance
-
-### Teacher
-- View own class attendance
-- Verify attendance records
-- Export data for their classes
-
-## API Integration
-
-The frontend expects a backend API at `http://localhost:8000` by default. Configuration can be changed in `src/config/api.js`.
-
-## License
-
-This project is developed for educational purposes by (ASTU) students.
-
----
-
-**Note:** This is the frontend-only implementation. Backend API and ML components are separate.
-
+    ESP32 microcontroller (optional)
