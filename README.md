@@ -96,6 +96,10 @@ CAVS/
 
     🔔 Notifications: Automated alerts for attendance anomalies
 
+    📈 Analytics: Comprehensive reporting and analytics dashboard
+
+    ⚡ High Performance: Optimized for real-time processing
+
 🛠️ Prerequisites
 
 Before you begin, ensure you have the following installed:
