@@ -1,3 +1,29 @@
+# CAVS - Central Attendance Variance System
+
+
+# Table of Contents
+
+    Overview
+
+    Project Structure
+
+    Features
+
+    Prerequisites
+
+    Quick Start
+
+    Installation Guide
+
+    Documentation
+
+    Testing
+
+    Issue Reporting
+
+    Contributing
+
+    License
 # Overview
 
 CAVS is an intelligent attendance monitoring system that combines hardware devices (Raspberry Pi and ESP32) with a modern web application to provide accurate, real-time attendance tracking using facial recognition technology. The system is designed for organizations that require reliable, contactless attendance monitoring across multiple locations.
