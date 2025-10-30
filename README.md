@@ -2,6 +2,8 @@
 
 CAVS is an intelligent attendance monitoring system that combines hardware devices (Raspberry Pi and ESP32) with a modern web application to provide accurate, real-time attendance tracking using facial recognition technology. The system is designed for organizations that require reliable, contactless attendance monitoring across multiple locations.
 
+# Project Structure
+
 CAVS/
 ├── 📁 backend/                 # FastAPI backend application
 │   ├── app/
@@ -83,3 +85,18 @@ Before you begin, ensure you have the following installed:
     Raspberry Pi with camera module (for device deployment)
 
     ESP32 microcontroller (optional)
+    
+
+🐛 Issue Reporting
+
+Found a bug? Please create an issue using our issue template and include:
+
+    Detailed description of the issue
+
+    Steps to reproduce
+
+    Expected vs actual behavior
+
+    Screenshots (if applicable)
+
+CAVS - Making attendance tracking smarter and more reliable
