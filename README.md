@@ -52,8 +52,6 @@ CAVS/
 ├── LICENSE
 └── .gitignore
 
-
-
 ✨ Features
 
     🤖 Facial Recognition: Real-time face detection and identification using advanced ML models
