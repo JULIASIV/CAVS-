@@ -3,8 +3,17 @@ import { MagnifyingGlassIcon, PlusIcon, UserCircleIcon } from '@heroicons/react/
 
 const Students = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [editingStudent, setEditingStudent] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    studentId: '',
+    email: '',
+    department: '',
+    year: '',
+  });
 
-  const students = [
+  const [students, setStudents] = useState([
     {
       id: 1,
       name: 'John Doe',
@@ -54,6 +63,60 @@ const Students = () => {
       student.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleOpenModal = (student = null) => {
+    if (student) {
+      setEditingStudent(student);
+      setFormData({
+        name: student.name,
+        studentId: student.studentId,
+        email: student.email,
+        department: student.department,
+        year: student.year,
+      });
+    } else {
+      setEditingStudent(null);
+      setFormData({
+        name: '',
+        studentId: '',
+        email: '',
+        department: '',
+        year: '',
+      });
+    }
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingStudent(null);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (editingStudent) {
+      setStudents(students.map(s => 
+        s.id === editingStudent.id 
+          ? { ...formData, id: editingStudent.id, enrollmentDate: s.enrollmentDate, attendanceRate: s.attendanceRate }
+          : s
+      ));
+    } else {
+      const newStudent = {
+        ...formData,
+        id: Math.max(...students.map(s => s.id)) + 1,
+        enrollmentDate: new Date().toISOString().split('T')[0],
+        attendanceRate: 0,
+      };
+      setStudents([...students, newStudent]);
+    }
+    handleCloseModal();
+  };
+
+  const handleDelete = (id) => {
+    if (window.confirm('Are you sure you want to delete this student?')) {
+      setStudents(students.filter(s => s.id !== id));
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -61,7 +124,10 @@ const Students = () => {
           <h1 className="text-2xl font-bold text-gray-900">Students</h1>
           <p className="text-gray-600 mt-1">Manage enrolled students</p>
         </div>
-        <button className="btn-primary flex items-center gap-2">
+        <button 
+          onClick={() => handleOpenModal()}
+          className="btn-primary flex items-center gap-2"
+        >
           <PlusIcon className="h-5 w-5" />
           Add Student
         </button>
@@ -125,11 +191,17 @@ const Students = () => {
                 </div>
               </div>
               <div className="flex gap-2">
-                <button className="px-4 py-2 text-sm text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg font-medium">
-                  View Profile
-                </button>
-                <button className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg font-medium">
+                <button 
+                  onClick={() => handleOpenModal(student)}
+                  className="px-4 py-2 text-sm text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg font-medium"
+                >
                   Edit
+                </button>
+                <button 
+                  onClick={() => handleDelete(student.id)}
+                  className="px-4 py-2 text-sm text-danger-600 hover:text-danger-700 hover:bg-danger-50 rounded-lg font-medium"
+                >
+                  Delete
                 </button>
               </div>
             </div>
@@ -141,6 +213,118 @@ const Students = () => {
         <div className="card text-center py-12">
           <UserCircleIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-500">No students found</p>
+        </div>
+      )}
+
+      {/* Add/Edit Student Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-2xl font-bold text-gray-900">
+                {editingStudent ? 'Edit Student' : 'Add New Student'}
+              </h2>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Full Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="input-field"
+                  placeholder="e.g., John Doe"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Student ID *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.studentId}
+                  onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
+                  className="input-field"
+                  placeholder="e.g., ASTU/1234/20"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email *
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="input-field"
+                  placeholder="student@astu.edu"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Department *
+                </label>
+                <select
+                  required
+                  value={formData.department}
+                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                  className="input-field"
+                >
+                  <option value="">Select Department</option>
+                  <option value="Material Science">Material Science</option>
+                  <option value="Economics">Economics</option>
+                  <option value="Computer Science">Computer Science</option>
+                  <option value="Engineering">Engineering</option>
+                  <option value="Mathematics">Mathematics</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Year *
+                </label>
+                <select
+                  required
+                  value={formData.year}
+                  onChange={(e) => setFormData({ ...formData, year: e.target.value })}
+                  className="input-field"
+                >
+                  <option value="">Select Year</option>
+                  <option value="2019">2019</option>
+                  <option value="2020">2020</option>
+                  <option value="2021">2021</option>
+                  <option value="2022">2022</option>
+                  <option value="2023">2023</option>
+                  <option value="2024">2024</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="flex-1 btn-outline"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 btn-primary"
+                >
+                  {editingStudent ? 'Update Student' : 'Add Student'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>
