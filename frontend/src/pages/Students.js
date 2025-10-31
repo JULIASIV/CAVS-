@@ -271,7 +271,7 @@ const Students = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Department *
+                  School & Department *
                 </label>
                 <select
                   required
@@ -279,12 +279,42 @@ const Students = () => {
                   onChange={(e) => setFormData({ ...formData, department: e.target.value })}
                   className="input-field"
                 >
-                  <option value="">Select Department</option>
-                  <option value="Material Science">Material Science</option>
-                  <option value="Economics">Economics</option>
-                  <option value="Computer Science">Computer Science</option>
-                  <option value="Engineering">Engineering</option>
-                  <option value="Mathematics">Mathematics</option>
+                  <option value="">Select School/Department</option>
+                  
+                  <optgroup label="School of Applied Natural Sciences (SoANS)">
+                    <option value="Applied Biology">Applied Biology</option>
+                    <option value="Applied Chemistry">Applied Chemistry</option>
+                    <option value="Applied Mathematics">Applied Mathematics</option>
+                    <option value="Applied Physics">Applied Physics</option>
+                    <option value="Applied Geology">Applied Geology</option>
+                  </optgroup>
+                  
+                  <optgroup label="School of Civil Engineering & Architecture (SoCEA)">
+                    <option value="Architecture">Architecture</option>
+                    <option value="Civil Engineering">Civil Engineering</option>
+                    <option value="Construction Technology & Management">Construction Technology & Management</option>
+                    <option value="Urban Planning & Design">Urban Planning & Design</option>
+                    <option value="Geomatics Engineering">Geomatics Engineering</option>
+                    <option value="Water Resources Engineering">Water Resources Engineering</option>
+                  </optgroup>
+                  
+                  <optgroup label="School of Electrical Engineering & Computing (SoEEC)">
+                    <option value="Computer Science & Engineering">Computer Science & Engineering (CSE)</option>
+                    <option value="Electronics & Communication Engineering">Electronics & Communication Engineering (ECE)</option>
+                    <option value="Electrical Power & Control Engineering">Electrical Power & Control Engineering (EPCE)</option>
+                  </optgroup>
+                  
+                  <optgroup label="School of Mechanical, Chemical & Materials Engineering (SoMCME)">
+                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                    <option value="Chemical Engineering">Chemical Engineering</option>
+                    <option value="Materials Science & Engineering">Materials Science & Engineering</option>
+                  </optgroup>
+                  
+                  <optgroup label="School of Humanities & Social Sciences (CoHSS)">
+                    <option value="Technology & Innovation Management">Technology & Innovation Management</option>
+                    <option value="English Language & Literature">English Language & Literature</option>
+                    <option value="Social Sciences">Social Sciences</option>
+                  </optgroup>
                 </select>
               </div>
 
