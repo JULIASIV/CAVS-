@@ -54,7 +54,7 @@ const Students = () => {
       enrollmentDate: '2021-09-01',
       attendanceRate: 78,
     },
-  ];
+  ]);
 
   const filteredStudents = students.filter(
     (student) =>
