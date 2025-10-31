@@ -56,7 +56,13 @@ const Login = () => {
         <div className="bg-white rounded-2xl shadow-2xl p-8 backdrop-blur-lg">
           <div className="text-center mb-6">
             <div className="flex justify-center mb-4">
-              <Logo className="h-20 w-20" />
+              <div className="h-24 w-24 rounded-full overflow-hidden bg-white shadow-lg border-4 border-primary-100">
+                <img 
+                  src="/astu.jpg" 
+                  alt="ASTU Logo" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-1">Sign In</h2>
             <p className="text-gray-600">Access your attendance dashboard</p>
