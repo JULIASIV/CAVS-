@@ -72,7 +72,33 @@ const AttendanceRecords = () => {
   };
 
   const handleExport = () => {
-    console.log('Export CSV');
+    // Convert data to CSV format
+    const headers = ['Student Name', 'Student ID', 'Course', 'Date', 'Time', 'Status', 'Verified'];
+    const csvData = filteredData.map(record => [
+      record.studentName,
+      record.studentId,
+      record.course,
+      format(record.date, 'yyyy-MM-dd'),
+      record.time,
+      record.status,
+      record.verified ? 'Yes' : 'No'
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...csvData.map(row => row.join(','))
+    ].join('\n');
+
+    // Create and download CSV file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `attendance_${format(new Date(), 'yyyy-MM-dd')}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (

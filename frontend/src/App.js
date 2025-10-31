@@ -17,15 +17,23 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
+          
+          {/* Public authenticated routes */}
           <Route path="/" element={<PrivateRoute />}>
             <Route element={<Layout />}>
               <Route index element={<Dashboard />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="attendance" element={<AttendanceRecords />} />
               <Route path="students" element={<Students />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
+          </Route>
+
+          {/* Admin-only routes */}
+          <Route path="/" element={<PrivateRoute allowedRoles={['admin']} />}>
+            <Route element={<Layout />}>
               <Route path="iot-dashboard" element={<IoTDashboard />} />
               <Route path="device-settings" element={<DeviceSettings />} />
-              <Route path="settings" element={<Settings />} />
             </Route>
           </Route>
         </Routes>
