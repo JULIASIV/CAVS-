@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import Logo from '../components/Logo';
+import { EyeIcon, EyeSlashIcon, AcademicCapIcon } from '@heroicons/react/24/outline';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -31,15 +32,34 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <div className="text-center mb-8">
-            <div className="inline-flex h-16 w-16 rounded-2xl bg-primary-600 items-center justify-center mb-4">
-              <span className="text-white text-2xl font-bold">SA</span>
+    <div className="min-h-screen bg-gradient-to-br from-primary-600 via-primary-500 to-accent-500 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-accent-300 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="max-w-md w-full relative z-10">
+        {/* Welcome Banner */}
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center justify-center mb-4">
+            <AcademicCapIcon className="h-16 w-16 text-white" />
+          </div>
+          <h1 className="text-4xl font-display font-bold text-white mb-2">
+            Welcome to ASTU
+          </h1>
+          <p className="text-primary-100 text-lg">
+            Smart Attendance Management System
+          </p>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-2xl p-8 backdrop-blur-lg">
+          <div className="text-center mb-6">
+            <div className="flex justify-center mb-4">
+              <Logo className="h-20 w-20" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Smart Attendance System</h1>
-            <p className="text-gray-600">Sign in to your account</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">Sign In</h2>
+            <p className="text-gray-600">Access your attendance dashboard</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
