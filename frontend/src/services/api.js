@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { API_ENDPOINTS } from '../config/api';
+import API_BASE_URL from '../config/api';
 
 // Create axios instance
 const api = axios.create({
-  baseURL: API_ENDPOINTS,
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -98,6 +98,54 @@ export const statsAPI = {
   },
   getAttendanceStats: async (params = {}) => {
     const response = await api.get('/api/stats/attendance', { params });
+    return response.data;
+  },
+};
+
+// Devices (IoT)
+export const devicesAPI = {
+  getAll: async (params = {}) => {
+    const response = await api.get('/api/devices', { params });
+    return response.data;
+  },
+  getById: async (id) => {
+    const response = await api.get(`/api/devices/${id}`);
+    return response.data;
+  },
+  update: async (id, data) => {
+    const response = await api.put(`/api/devices/${id}`, data);
+    return response.data;
+  },
+  restart: async (id) => {
+    const response = await api.post(`/api/devices/${id}/restart`);
+    return response.data;
+  },
+  metrics: async (id) => {
+    const response = await api.get(`/api/devices/${id}/metrics`);
+    return response.data;
+  },
+};
+
+// Courses (Admin CRUD)
+export const coursesAPI = {
+  getAll: async (params = {}) => {
+    const response = await api.get('/api/courses', { params });
+    return response.data;
+  },
+  getById: async (id) => {
+    const response = await api.get(`/api/courses/${id}`);
+    return response.data;
+  },
+  create: async (data) => {
+    const response = await api.post('/api/courses', data);
+    return response.data;
+  },
+  update: async (id, data) => {
+    const response = await api.put(`/api/courses/${id}`, data);
+    return response.data;
+  },
+  delete: async (id) => {
+    const response = await api.delete(`/api/courses/${id}`);
     return response.data;
   },
 };
