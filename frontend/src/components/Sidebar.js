@@ -4,14 +4,18 @@ import {
   HomeIcon,
   ClipboardDocumentCheckIcon,
   UserGroupIcon,
+  CpuChipIcon,
+  WrenchScrewdriverIcon,
   Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
 
 const Sidebar = ({ isOpen, currentPath }) => {
   const navigation = [
-    { name: 'Dashboard', icon: HomeIcon, path: '/' },
+    { name: 'Dashboard', icon: HomeIcon, path: '/dashboard' },
     { name: 'Attendance Records', icon: ClipboardDocumentCheckIcon, path: '/attendance' },
     { name: 'Students', icon: UserGroupIcon, path: '/students' },
+    { name: 'IoT Devices', icon: CpuChipIcon, path: '/iot-dashboard' },
+    { name: 'Device Settings', icon: WrenchScrewdriverIcon, path: '/device-settings' },
     { name: 'Settings', icon: Cog6ToothIcon, path: '/settings' },
   ];
 
