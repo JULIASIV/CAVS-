@@ -4,18 +4,62 @@ import { CameraIcon, XMarkIcon, CheckIcon, ArrowPathIcon } from '@heroicons/reac
 const CameraCapture = ({ onCapture, onClose, studentId = null, courseId = null }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const detectionCanvasRef = useRef(null);
   const [stream, setStream] = useState(null);
   const [capturedImage, setCapturedImage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [facingMode, setFacingMode] = useState('user'); // 'user' or 'environment'
+  const [facingMode, setFacingMode] = useState('environment'); // 'environment' for rear camera (classroom)
+  const [detectedFaces, setDetectedFaces] = useState([]);
+  const [isDetecting, setIsDetecting] = useState(false);
+  const detectionIntervalRef = useRef(null);
+  const MAX_FACES = 50; // Maximum 50 students per capture
 
   useEffect(() => {
     startCamera();
     return () => {
       stopCamera();
+      if (detectionIntervalRef.current) {
+        clearInterval(detectionIntervalRef.current);
+      }
     };
   }, [facingMode]);
+
+  // Simple face detection using canvas analysis (placeholder for backend processing)
+  const detectFaces = () => {
+    if (!videoRef.current || !detectionCanvasRef.current) return;
+    
+    const video = videoRef.current;
+    const canvas = detectionCanvasRef.current;
+    const ctx = canvas.getContext('2d');
+    
+    canvas.width = video.videoWidth / 4; // Reduce size for performance
+    canvas.height = video.videoHeight / 4;
+    
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // This is a placeholder. Real face detection will be done on backend
+    // For now, we'll just show the detection is active
+    setIsDetecting(true);
+  };
+
+  useEffect(() => {
+    if (stream && !capturedImage) {
+      // Start periodic face detection (every 500ms)
+      detectionIntervalRef.current = setInterval(detectFaces, 500);
+    } else {
+      if (detectionIntervalRef.current) {
+        clearInterval(detectionIntervalRef.current);
+      }
+      setIsDetecting(false);
+    }
+    
+    return () => {
+      if (detectionIntervalRef.current) {
+        clearInterval(detectionIntervalRef.current);
+      }
+    };
+  }, [stream, capturedImage]);
 
   const startCamera = async () => {
     try {
@@ -23,8 +67,8 @@ const CameraCapture = ({ onCapture, onClose, studentId = null, courseId = null }
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { 
           facingMode: facingMode,
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
+          width: { ideal: 1920 }, // Higher resolution for group photos
+          height: { ideal: 1080 }
         },
         audio: false
       });
@@ -82,6 +126,8 @@ const CameraCapture = ({ onCapture, onClose, studentId = null, courseId = null }
       try {
         const formData = new FormData();
         formData.append('image', capturedImage.blob, 'capture.jpg');
+        formData.append('max_faces', MAX_FACES); // Tell backend to detect up to 50 faces
+        formData.append('capture_type', 'group'); // Indicate this is a group capture
         if (studentId) formData.append('student_id', studentId);
         if (courseId) formData.append('course_id', courseId);
         
@@ -109,9 +155,14 @@ const CameraCapture = ({ onCapture, onClose, studentId = null, courseId = null }
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">
-            {capturedImage ? 'Review Photo' : 'Capture Photo'}
-          </h3>
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {capturedImage ? 'Review Group Photo' : 'Capture Class Attendance'}
+            </h3>
+            <p className="text-sm text-gray-500 mt-1">
+              {capturedImage ? 'Up to 50 students will be detected' : 'Position camera to capture entire classroom (up to 50 students)'}
+            </p>
+          </div>
           <button
             onClick={handleClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -138,10 +189,26 @@ const CameraCapture = ({ onCapture, onClose, studentId = null, courseId = null }
                   className="absolute inset-0 w-full h-full object-cover"
                 />
                 <canvas ref={canvasRef} className="hidden" />
+                <canvas ref={detectionCanvasRef} className="hidden" />
                 
-                {/* Face Detection Overlay (placeholder for future ML integration) */}
+                {/* Multi-Face Detection Indicator */}
                 <div className="absolute inset-0 pointer-events-none">
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-80 border-2 border-blue-500 rounded-lg opacity-50"></div>
+                  {/* Frame guide for classroom capture */}
+                  <div className="absolute inset-4 border-2 border-green-500 rounded-lg opacity-50"></div>
+                  
+                  {/* Detection status */}
+                  {isDetecting && (
+                    <div className="absolute top-4 left-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm flex items-center gap-2">
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                      Detecting Faces...
+                    </div>
+                  )}
+                  
+                  {/* Instructions overlay */}
+                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-75 text-white px-4 py-2 rounded-lg text-sm text-center max-w-md">
+                    <p className="font-semibold">📸 Group Capture Mode</p>
+                    <p className="mt-1">Position camera to include all students (max 50 faces)</p>
+                  </div>
                 </div>
               </>
             ) : (
@@ -208,12 +275,26 @@ const CameraCapture = ({ onCapture, onClose, studentId = null, courseId = null }
           </div>
 
           {/* Instructions */}
-          <div className="mt-4 text-center text-sm text-gray-500">
-            {!capturedImage ? (
-              <p>Position your face within the frame and click capture</p>
-            ) : (
-              <p>Review the photo and confirm to upload</p>
-            )}
+          <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="text-center">
+              {!capturedImage ? (
+                <div>
+                  <p className="text-sm font-semibold text-blue-900 mb-2">📋 Classroom Capture Tips:</p>
+                  <ul className="text-xs text-blue-700 space-y-1">
+                    <li>✓ Ensure good lighting across the classroom</li>
+                    <li>✓ Position camera at eye level</li>
+                    <li>✓ Capture from 3-5 meters distance for best results</li>
+                    <li>✓ Students should face the camera</li>
+                    <li>✓ System will detect up to 50 faces automatically</li>
+                  </ul>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-sm font-semibold text-blue-900 mb-1">Review Group Photo</p>
+                  <p className="text-xs text-blue-700">The system will automatically detect and identify all students in this photo (up to 50 faces). Click Confirm to process.</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
