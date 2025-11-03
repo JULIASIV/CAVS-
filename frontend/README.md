@@ -366,6 +366,7 @@ MIT License - See [LICENSE](../LICENSE)
 ## 👨‍💻 Team
 
 **Project Lead:** Abenezer Markos  
+**Frontend Developer:** [Your Name Here]  
 **Institution:** ASTU (Adama Science and Technology University)  
 **Department:** Material Science & Engineering / Economics
 

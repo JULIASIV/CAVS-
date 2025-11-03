@@ -66,6 +66,15 @@ The Smart Attendance System automates student attendance tracking using facial r
 
 ## ✨ Features
 
+### Frontend Feature Summary
+- Authentication with JWT, role-based access (Admin/Teacher)
+- Responsive dashboard with statistics and recent activity
+- Attendance records table with search, filters, approve/reject, CSV export
+- Student directory with profiles and attendance rates
+- IoT device status dashboard (online/offline, metrics) and device settings
+- Camera capture and image upload flows (ready for backend integration)
+- Settings: profile, notifications, privacy, and appearance
+
 ### 🔐 Core Features
 
 - **Facial Recognition Pipeline**
@@ -115,9 +124,23 @@ The Smart Attendance System automates student attendance tracking using facial r
 - **Date Handling:** date-fns
 
 ### Hardware
-- **Devices:** Raspberry Pi 4, ESP32-CAM
-- **Camera:** Pi Camera v2 / USB Camera
-- **Sensors:** PIR motion sensors (optional)
+- Raspberry Pi 4 Model B (4GB RAM)
+- Raspberry Pi High Quality AI Camera Module
+- Compatible C/CS lens for HQ camera (6mm or 8mm recommended)
+- MicroSD Card (64GB or 128GB, Class 10 recommended)
+- Power Supply (5V, 3A)
+- Micro HDMI to HDMI cable (for setup)
+- Case for Raspberry Pi and camera with cooling fan (recommended)
+- Red LED × 1
+- Green LED × 1
+- 330Ω resistors × 2
+- Jumper wires: 6× female-to-male, 4× male-to-male
+- Breadboard (recommended for neat wiring)
+- Buzzer or small speaker (audible feedback)
+- Push button (manual control/reset)
+- External USB drive or SSD (recommended for large data/backups)
+- TFT Display (real-time visual feedback)
+- Camera lens cleaning kit (microfiber cloth, solution, air blower, brush)
 
 ---
 
@@ -369,6 +392,7 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file for
 ## 👨‍💻 Team
 
 **Project Lead:** Abenezer Markos  
+**Frontend Developer:** [Your Name Here]  
 **Institution:** Adama Science and Technology University (ASTU)  
 **Department:** Material Science and Engineering / Economics
 

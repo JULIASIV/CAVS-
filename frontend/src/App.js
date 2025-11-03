@@ -3,8 +3,11 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './contexts/AuthContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import CameraPage from './pages/CameraPage';
 import AttendanceRecords from './pages/AttendanceRecords';
 import Students from './pages/Students';
+import EnrollStudent from './pages/EnrollStudent';
+import Analytics from './pages/Analytics';
 import IoTDashboard from './pages/IoTDashboard';
 import DeviceSettings from './pages/DeviceSettings';
 import Settings from './pages/Settings';
@@ -23,8 +26,11 @@ function App() {
             <Route element={<Layout />}>
               <Route index element={<Dashboard />} />
               <Route path="dashboard" element={<Dashboard />} />
+              <Route path="camera" element={<CameraPage />} />
               <Route path="attendance" element={<AttendanceRecords />} />
               <Route path="students" element={<Students />} />
+              <Route path="students/enroll" element={<EnrollStudent />} />
+              <Route path="analytics" element={<Analytics />} />
               <Route path="settings" element={<Settings />} />
             </Route>
           </Route>

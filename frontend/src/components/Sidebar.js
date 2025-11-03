@@ -6,6 +6,8 @@ import {
   HomeIcon,
   ClipboardDocumentCheckIcon,
   UserGroupIcon,
+  CameraIcon,
+  ChartBarIcon,
   CpuChipIcon,
   WrenchScrewdriverIcon,
   Cog6ToothIcon,
@@ -17,8 +19,10 @@ const Sidebar = ({ isOpen, currentPath }) => {
 
   const navigation = [
     { name: 'Dashboard', icon: HomeIcon, path: '/dashboard', roles: ['admin', 'teacher'] },
+    { name: 'Camera Capture', icon: CameraIcon, path: '/camera', roles: ['admin', 'teacher'] },
     { name: 'Attendance Records', icon: ClipboardDocumentCheckIcon, path: '/attendance', roles: ['admin', 'teacher'] },
     { name: 'Students', icon: UserGroupIcon, path: '/students', roles: ['admin', 'teacher'] },
+    { name: 'Analytics', icon: ChartBarIcon, path: '/analytics', roles: ['admin', 'teacher'] },
     { name: 'IoT Devices', icon: CpuChipIcon, path: '/iot-dashboard', roles: ['admin'] },
     { name: 'Device Settings', icon: WrenchScrewdriverIcon, path: '/device-settings', roles: ['admin'] },
     { name: 'Settings', icon: Cog6ToothIcon, path: '/settings', roles: ['admin', 'teacher'] },

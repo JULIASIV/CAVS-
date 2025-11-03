@@ -223,6 +223,7 @@ npm start
 ## 📞 Need Help?
 
 - **Project Lead**: Abenezer Markos
+- **Frontend Developer**: [Your Name Here]
 - **Institution**: ASTU
 - **Department**: Material Science and Engineering
 

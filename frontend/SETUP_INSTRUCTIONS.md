@@ -201,6 +201,7 @@ npm install
 
 For issues or questions:
 - Project Lead: Abenezer Markos
+- Frontend Developer: [Your Name Here]
 - Institution: Adama Science and Technology University (ASTU)
 - Department: Material Science and Engineering
 

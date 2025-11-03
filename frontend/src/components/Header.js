@@ -1,5 +1,6 @@
 import React from 'react';
-import { Bars3Icon, BellIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, UserCircleIcon } from '@heroicons/react/24/outline';
+import NotificationCenter from './NotificationCenter';
 
 const Header = ({ user, onLogout, onToggleSidebar }) => {
   return (
@@ -13,10 +14,7 @@ const Header = ({ user, onLogout, onToggleSidebar }) => {
         </button>
 
         <div className="flex items-center gap-4 ml-auto">
-          <button className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-full">
-            <BellIcon className="h-6 w-6" />
-            <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
-          </button>
+          <NotificationCenter />
 
           <div className="flex items-center gap-3 border-l pl-4">
             <div className="text-right">

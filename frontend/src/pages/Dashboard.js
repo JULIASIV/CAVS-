@@ -29,7 +29,7 @@ const Dashboard = () => {
     setRecentAttendance([
       {
         id: 1,
-        studentName: 'John Doe',
+        studentName: 'Abenezer Markos',
         studentId: 'ASTU/1234/20',
         course: 'Machine Learning',
         time: new Date(),
@@ -37,7 +37,7 @@ const Dashboard = () => {
       },
       {
         id: 2,
-        studentName: 'Jane Smith',
+        studentName: 'Arsema Ayele',
         studentId: 'ASTU/1235/20',
         course: 'Data Structures',
         time: new Date(),
@@ -45,9 +45,25 @@ const Dashboard = () => {
       },
       {
         id: 3,
-        studentName: 'Mike Johnson',
+        studentName: 'Melkamu Wako',
         studentId: 'ASTU/1236/20',
         course: 'Machine Learning',
+        time: new Date(),
+        status: 'pending',
+      },
+      {
+        id: 4,
+        studentName: 'Nigus Hagos',
+        studentId: 'ASTU/1237/20',
+        course: 'Database Systems',
+        time: new Date(),
+        status: 'present',
+      },
+      {
+        id: 5,
+        studentName: 'Bethlehem Tesfaye',
+        studentId: 'ASTU/1238/20',
+        course: 'Web Development',
         time: new Date(),
         status: 'pending',
       },
