@@ -37,7 +37,7 @@ const Sidebar = ({ isOpen, currentPath }) => {
     <aside
       className={`bg-gradient-to-b from-white to-gray-50 shadow-xl transition-all duration-300 ${
         isOpen ? 'w-72' : 'w-0 lg:w-20'
-      } overflow-hidden flex flex-col border-r-2 border-primary-100`}
+      } overflow-y-auto flex flex-col border-r-2 border-primary-100 h-full`}
     >
       {/* Logo Section */}
       <div className="p-6 bg-primary-600 text-white">

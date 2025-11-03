@@ -16,9 +16,9 @@ const Layout = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-full w-full bg-gray-50 overflow-hidden">
       <Sidebar isOpen={sidebarOpen} currentPath={location.pathname} />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden h-full">
         <Header user={user} onLogout={handleLogout} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
           <Outlet />
