@@ -143,12 +143,12 @@ CAVS is a comprehensive attendance management system that leverages facial recog
 
 | Category | Estimated Cost (USD) |
 |----------|---------------------|
-| Core Components | $100-150 |
-| Electronics | $15-25 |
-| Display | $30-50 |
-| Storage | $30-60 |
-| Accessories | $10-20 |
-| **Total** | **$185-305** |
+| Core Components | ETB 100-150 |
+| Electronics | ETB 15-25 |
+| Display | ETB 30-50 |
+| Storage | ETB 30-60 |
+| Accessories | ETB 10-20 |
+| **Total** | **ETB 185-305** |
 
 > **Note**: Prices vary by region and supplier. Bulk purchases for multiple classrooms reduce per-unit cost.
 
@@ -255,7 +255,7 @@ Raspbian OS (64-bit)
 #### Record Actions
 ```
 ┌────────────────────────────────────────────────────┐
-│ Student: John Doe (STU12345)                      │
+│ Student: Melkamu Wako (STU12345)                      │
 │ Course: CSE301 - Data Structures                  │
 │ Time: 2025-01-15 09:15:23                         │
 │ Confidence: 95.2%                                  │
@@ -278,7 +278,7 @@ Raspbian OS (64-bit)
 ┌──────────────────────────┐
 │   [Student Photo]        │
 │                          │
-│   John Doe               │
+│   Melkamu Wako               │
 │   STU12345              │
 │   📧 john@astu.edu      │
 │   🏫 Computer Science   │
@@ -771,7 +771,7 @@ DATABASE_URL=postgresql://cavs_user:strong_password@localhost:5432/cavs_producti
 ### Project Team
 
 **Project Lead**: Abenezer Markos  
-**Frontend Developer**: [Your Name Here]  
+**Frontend Developer**: Melkamu Wako  
 **Institution**: Adama Science and Technology University (ASTU)  
 **Department**: Material Science and Engineering / Economics  
 

@@ -174,7 +174,7 @@ POST   /api/capture              # Upload image from device
 {
   "record_id": "uuid",
   "predicted_student_id": "STU12345",
-  "predicted_name": "John Doe",
+  "predicted_name": "Melkamu Wako",
   "confidence": 0.95,
   "status": "pending"
 }
@@ -483,7 +483,7 @@ MIT License - See [LICENSE](../LICENSE)
 ## 👨‍💻 Team
 
 **Project Lead:** Abenezer Markos  
-**Frontend Developer:** [Your Name Here]  
+**Frontend Developer:** Melkamu Wako  
 **Institution:** ASTU (Adama Science and Technology University)  
 **Department:** Material Science & Engineering / Economics
 

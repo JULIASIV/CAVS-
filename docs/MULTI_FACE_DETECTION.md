@@ -134,13 +134,13 @@ for match in matches:
   "matches": [
     {
       "student_id": "STU001",
-      "name": "John Doe",
+      "name": "Melkamu Wako",
       "confidence": 0.95,
       "face_box": [120, 80, 150, 200]
     },
     {
       "student_id": "STU002",
-      "name": "Jane Smith",
+      "name": "Tigist Alemayehu",
       "confidence": 0.89,
       "face_box": [450, 90, 140, 190]
     }
@@ -313,7 +313,7 @@ timestamp: "2025-01-15T09:30:00Z"
   "matches": [
     {
       "student_id": "STU001",
-      "name": "John Doe",
+      "name": "Melkamu Wako",
       "confidence": 0.95,
       "face_box": [120, 80, 150, 200],
       "status": "pending"
