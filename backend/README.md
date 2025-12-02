@@ -1,494 +1,348 @@
-# 🐍 CAVS Backend - Django REST API
+# 🐍 Smart Attendance System – Django REST Backend (Final Version)
 
-**Django REST Framework Backend for Smart Attendance System**
+Strict Automated Attendance System with Device-Side Face Recognition
 
-Robust API server handling facial recognition, authentication, and attendance management.
-
----
+This backend receives only recognized student IDs from devices, manages course-based attendance sessions, and allows teachers to review and edit attendance.
 
 ## 📋 Quick Start
 
 ### Prerequisites
 
-- **Python** 3.9 or higher
-- **pip** (comes with Python)
-- **PostgreSQL** (or use SQLite for development)
-- **virtualenv** (recommended)
+- Python 3.9+
+- pip
+- PostgreSQL (Production) / SQLite (Development)
+- Docker (Required for deployment)
 
-### Installation & Run
+### Installation (Local Development)
 
 ```bash
-# Create virtual environment
 python -m venv venv
+venv\Scripts\activate # Windows
+source venv/bin/activate # Linux / Mac
 
-# Activate virtual environment
-# On Windows:
-venv\Scripts\activate
-# On macOS/Linux:
-source venv/bin/activate
-
-# Install dependencies
 pip install -r requirements.txt
 
-# Run migrations
 python manage.py migrate
-
-# Create superuser
 python manage.py createsuperuser
-
-# Start development server
 python manage.py runserver
 ```
 
-The API will run at **http://localhost:8000**
+Server runs at: http://localhost:8000
 
----
+## 🎯 System Scope
 
-## ✨ Features
+✅ Strictly an attendance system
 
-### 🔐 Authentication
-- JWT token-based authentication
-- Token refresh mechanism
-- Role-based permissions (Admin/Teacher)
-- User registration and management
+✅ Face recognition is done on the device
 
-### 📸 Image Capture API
-- Receive images from IoT devices
-- Store metadata (device_id, classroom_id, timestamp)
-- Trigger facial recognition pipeline
-- Return match confidence and student ID
+✅ Backend only receives: student_id, date, time
 
-### 🤖 Facial Recognition
-- Face detection using OpenCV
-- Embedding generation (FaceNet/InsightFace)
-- Similarity matching with enrolled students
-- Configurable confidence thresholds
+✅ Teacher ID & Device ID are sent only once when a session is created
 
-### 📝 Attendance Management
-- CRUD operations for attendance records
-- Pending/Approved/Rejected status workflow
-- Teacher review and approval
-- Audit logging for all changes
+✅ Attendance is auto-approved (present)
 
-### 👥 Student Management
-- Student enrollment with photos
-- Store facial embeddings
-- Department and class information
-- Attendance history
+✅ Teacher can later mark permission
 
-### 🔌 Device Management
-- Register and track IoT devices
-- Device status monitoring
-- Configuration management
-- Device authentication
+✅ Students not scanned → Auto absent
 
----
+✅ Status values: present, absent, permission
+
+## 🔐 Authentication & Roles
+
+| **Role** | **Permissions**                                    |
+| -------- | -------------------------------------------------- |
+| Admin    | Full system access                                 |
+| Teacher  | Create sessions, edit attendance for their courses |
+| Device   | Send recognized attendance                         |
+
+JWT authentication (SimpleJWT) is used.
+
+Devices authenticate using JWT or API key mechanism (to be finalized).
 
 ## 🛠 Tech Stack
 
-| Technology | Version | Purpose |
-|------------|---------|----------|
-| Django | 4.2+ | Web framework |
-| Django REST Framework | 3.14+ | REST API |
-| PostgreSQL | 13+ | Database (production) |
-| SQLite | 3 | Database (development) |
-| djangorestframework-simplejwt | 5.2+ | JWT authentication |
-| OpenCV | 4.7+ | Face detection |
-| InsightFace / FaceNet | - | Face embeddings |
-| NumPy | 1.24+ | Numerical operations |
-| Pillow | 9.5+ | Image processing |
-| Celery | 5.2+ | Task queue (optional) |
-| Redis | 7.0+ | Cache & queue backend (optional) |
-
----
+| Technology            | Purpose                  |
+| --------------------- | ------------------------ |
+| Django 4.2+           | Backend framework        |
+| Django REST Framework | REST API                 |
+| PostgreSQL / SQLite   | Database                 |
+| SimpleJWT             | Authentication           |
+| Docker                | Deployment               |
+| Redis + Celery        | Optional background jobs |
 
 ## 📁 Project Structure
 
 ```
 backend/
-├── app/
-│   ├── settings.py              # Django settings
-│   ├── urls.py                  # URL routing
-│   ├── wsgi.py                  # WSGI config
-│   └── asgi.py                  # ASGI config
+├── manage.py
+├── requirements.txt
 │
-├── api/
-│   ├── views/                   # API views
-│   │   ├── auth.py             # Authentication endpoints
-│   │   ├── capture.py          # Image capture endpoint
-│   │   ├── attendance.py       # Attendance CRUD
-│   │   ├── students.py         # Student management
-│   │   └── devices.py          # Device management
-│   │
-│   ├── serializers/             # DRF serializers
-│   │   ├── user.py
-│   │   ├── attendance.py
-│   │   ├── student.py
-│   │   └── device.py
-│   │
-│   ├── models.py                # Database models
-│   ├── permissions.py           # Custom permissions
-│   ├── urls.py                  # API URL routing
-│   └── tests/                   # Test suite
+├── CAV/ # Main Django project (settings)
+│  ├── **init**.py
+│  ├── settings.py
+│  ├── urls.py
+│  ├── asgi.py
+│  ├── wsgi.py
+│  └── app.py
 │
-├── inference/
-│   ├── detector.py              # Face detection
-│   ├── embedder.py              # Embedding generation
-│   ├── matcher.py               # Similarity matching
-│   └── models/                  # Pre-trained models
+├── api/ # Main application
+│  ├── **init**.py
+│  ├── admin.py
+│  ├── apps.py
+	├── models.py
+	├── permissions.py
+	├── serializers.py
+	├── views.py
+	├── urls.py
+	├── tests.py
+	└── migrations/
+		 └── **init**.py
 │
-├── uploads/                     # Uploaded images
-├── db.sqlite3                   # SQLite database (dev)
-├── manage.py                    # Django management script
-├── requirements.txt             # Python dependencies
-└── README.md                    # This file
+├── db.sqlite3 # Development database
+└── .env
 ```
-
----
 
 ## 🚀 API Endpoints
 
-### Authentication
+### 🔐 Authentication
 
-```
-POST   /api/auth/login           # Login and get JWT token
-POST   /api/auth/refresh         # Refresh JWT token
-POST   /api/auth/register        # Register new user
-GET    /api/auth/me              # Get current user info
-```
+| Method | Endpoint          | Description              |
+| ------ | ----------------- | ------------------------ |
+| POST   | /api/auth/login   | Obtain JWT pair          |
+| POST   | /api/auth/refresh | Refresh access token     |
+| GET    | /api/auth/me      | Get current user details |
 
-### Capture
+### 👨‍🎓 Students
 
-```
-POST   /api/capture              # Upload image from device
-```
+| Method | Endpoint           | Description                         |
+| ------ | ------------------ | ----------------------------------- |
+| GET    | /api/students      | List all students                   |
+| POST   | /api/students      | Create a new student (Admin only)   |
+| GET    | /api/students/{id} | Retrieve student details            |
+| PUT    | /api/students/{id} | Update student details (Admin only) |
+| DELETE | /api/students/{id} | Delete student (Admin only)         |
 
-**Request:**
-- `image` (file) - Captured image
-- `device_id` (string) - Device identifier
-- `classroom_id` (string) - Classroom identifier
-- `timestamp` (datetime) - Capture timestamp
+### 👨‍🏫 Teachers
 
-**Response:**
+| Method | Endpoint      | Description                       |
+| ------ | ------------- | --------------------------------- |
+| GET    | /api/teachers | List all teachers                 |
+| POST   | /api/teachers | Create a new teacher (Admin only) |
+
+### 🏫 Department & Sections
+
+| Method | Endpoint       | Description                              |
+| ------ | -------------- | ---------------------------------------- |
+| GET    | /api/dep-batch | List all department batches              |
+| POST   | /api/dep-batch | Create new department batch (Admin only) |
+| GET    | /api/sections  | List all sections                        |
+| POST   | /api/sections  | Create new section (Admin only)          |
+
+### 📚 Courses
+
+| Method | Endpoint          | Description                      |
+| ------ | ----------------- | -------------------------------- |
+| GET    | /api/courses      | List all courses                 |
+| POST   | /api/courses      | Create a new course (Admin only) |
+| GET    | /api/courses/{id} | Retrieve course details          |
+
+### 📆 Attendance Sessions
+
+| Method | Endpoint                 | Description                      |
+| ------ | ------------------------ | -------------------------------- |
+| POST   | /api/sessions            | Create a new attendance session  |
+| GET    | /api/sessions            | List all sessions                |
+| GET    | /api/sessions/{id}       | Retrieve session details         |
+| POST   | /api/sessions/{id}/close | Manually close an active session |
+
+#### Create Session (Teacher → Backend)
+
 ```json
 {
-  "record_id": "uuid",
-  "predicted_student_id": "STU12345",
-  "predicted_name": "Melkamu Wako",
-  "confidence": 0.95,
-  "status": "pending"
+  "course_id": 3,
+  "teacher_id": 5,
+  "device_id": "DEV-01",
+  "date": "2025-11-25"
 }
 ```
 
-### Attendance
+- ✅ Teacher and Device are bound once.
+- ✅ Session becomes is_active=True.
 
-```
-GET    /api/attendance/pending    # List pending records
-GET    /api/attendance?filters    # List all records with filters
-POST   /api/attendance/:id/review # Approve/reject attendance
-GET    /api/attendance/:id        # Get single record
-DELETE /api/attendance/:id        # Delete record (admin)
-```
+### 📸 Attendance Scan (Sent by Device Every Time)
 
-### Students
+| Method | Endpoint             | Description                    |
+| ------ | -------------------- | ------------------------------ |
+| POST   | /api/attendance/scan | Submit a recognized student ID |
 
-```
-GET    /api/students              # List all students
-POST   /api/students              # Enroll new student
-GET    /api/students/:id          # Get student details
-PUT    /api/students/:id          # Update student
-DELETE /api/students/:id          # Remove student
-```
+Request Payload
 
-### Devices
-
-```
-GET    /api/devices               # List all devices
-POST   /api/devices               # Register new device
-GET    /api/devices/:id           # Get device details
-PUT    /api/devices/:id           # Update device
-DELETE /api/devices/:id           # Remove device
+```json
+{
+  "student_id": 120,
+  "date": "2025-11-25",
+  "time": "08:43:21"
+}
 ```
 
----
+- ✅ System finds the active session for the bound device_id.
+- ✅ Automatically creates a Present record.
+- ✅ Duplicate scans for the same student/session are blocked.
+- ✅ Teacher & Device are taken from the active session.
 
-## ⚙️ Configuration
+## 📝 Attendance Records
 
-### Environment Variables
+| Method | Endpoint                             | Description                              |
+| ------ | ------------------------------------ | ---------------------------------------- |
+| GET    | /api/attendance                      | List all attendance records (Admin only) |
+| GET    | /api/attendance/session/{session_id} | Get records for a specific session       |
+| PUT    | /api/attendance/{id}/edit            | Edit a record (e.g., change status)      |
+| DELETE | /api/attendance/{id}                 | Delete attendance record (Admin only)    |
 
-Create a `.env` file in the backend root:
+### Edit Attendance (Teacher)
 
-```env
-# Django
+```json
+{
+  "status": "permission"
+}
+```
+
+## 🧠 Attendance Logic
+
+- Teacher opens a session (binds device).
+- Device recognizes face locally.
+- Device sends only: student_id, date, time.
+- Backend marks status as Present.
+- When the session closes (manually or automatically):
+  - The system iterates over all students registered for the course's section(s).
+  - All students not found in AttendanceRecord for this session are automatically marked Absent.
+- Teacher can later change a record's status (e.g., Present → Permission).
+
+## 📊 Final Database Schema
+
+```
+Student
+
+id int PK
+student_code varchar unique
+first_name varchar
+last_name varchar
+section_id FK
+
+Teacher
+
+id int PK
+teacher_code varchar unique
+first_name varchar
+last_name varchar
+
+DepBatch
+
+id int PK
+dep varchar
+batch varchar
+
+Section
+
+id int PK
+name varchar
+dep_batch_id FK
+
+Course
+
+id int PK
+name varchar
+code varchar unique
+teacher_id FK (Teacher)
+
+AttendanceSession
+
+id int PK
+course_id FK (Course)
+date date
+created_by FK (Teacher)
+created_at datetime
+device_id varchar (Index this field)
+is_active boolean
+
+AttendanceRecord
+
+id int PK
+session_id FK (AttendanceSession)
+student_id FK (Student)
+status varchar (Enum: 'present', 'absent', 'permission')
+timestamp datetime (Time of device scan/manual edit)
+```
+
+## ⚙️ Environment Configuration
+
+`.env` file structure
+
+```ini
 DEBUG=True
-SECRET_KEY=your-very-secret-key-here-change-in-production
-ALLOWED_HOSTS=localhost,127.0.0.1
+SECRET_KEY=your-secret-key
+ALLOWED_HOSTS=localhost,127.0.0.1, [::1]
 
-# Database (PostgreSQL)
-DATABASE_URL=postgresql://user:password@localhost:5432/attendance_db
-# Or use SQLite (default):
-# DATABASE_URL=sqlite:///db.sqlite3
+# Database Configuration
 
-# CORS
-CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+DATABASE_URL=sqlite:///db.sqlite3
 
-# JWT
-JWT_ACCESS_TOKEN_LIFETIME=60  # minutes
-JWT_REFRESH_TOKEN_LIFETIME=1440  # minutes (1 day)
+# Example PostgreSQL:
 
-# File Upload
-MAX_UPLOAD_SIZE=10485760  # 10MB in bytes
-UPLOAD_DIR=uploads/
+# DATABASE_URL=postgresql://user:pass@localhost:5432/attendance_db
 
-# ML Models
-MODEL_PATH=inference/models/
-FACE_DETECTION_MODEL=haarcascade_frontalface_default.xml
-EMBEDDING_MODEL=facenet_keras.h5
+# JWT Configuration (Times in minutes)
 
-# Thresholds
-CONFIDENCE_THRESHOLD_HIGH=0.9
-CONFIDENCE_THRESHOLD_MEDIUM=0.7
+JWT_ACCESS_TOKEN_LIFETIME=60
+JWT_REFRESH_TOKEN_LIFETIME=1440
 
-# Celery (optional)
-CELERY_BROKER_URL=redis://localhost:6379/0
-CELERY_RESULT_BACKEND=redis://localhost:6379/0
+# CORS Configuration
+
+CORS_ALLOWED_ORIGINS=http://localhost:3000, [https://your-frontend-domain.com](https://your-frontend-domain.com)
 ```
 
-### Database Setup
+## 🔐 Security Rules
 
-#### Using SQLite (Development)
-No setup needed - Django creates `db.sqlite3` automatically.
+- JWT authentication required for all authenticated endpoints.
+- Device authentication is required for /api/attendance/scan.
+- A device cannot submit a scan unless an active session is bound to its device_id.
+- Teachers can only edit attendance records for sessions associated with courses they teach (created_by).
+- Devices cannot edit or retrieve any system data; they are strictly for scan submission.
+- Attendance records cannot be deleted by teachers (Admin only).
+- Admin role has full access to all system resources.
 
-#### Using PostgreSQL (Production)
+## 👥 Roles Summary
 
-1. Install PostgreSQL
-2. Create database:
-   ```bash
-   createdb attendance_db
-   ```
-
-3. Update `.env` with connection string:
-   ```
-   DATABASE_URL=postgresql://user:password@localhost:5432/attendance_db
-   ```
-
-4. Run migrations:
-   ```bash
-   python manage.py migrate
-   ```
-
----
+| Role    | Access                                                 |
+| ------- | ------------------------------------------------------ |
+| Admin   | Full system access                                     |
+| Teacher | Session management + Attendance edit for their courses |
+| Device  | Scan submission only                                   |
 
 ## 🧪 Testing
 
-### Run Tests
-
 ```bash
-# Run all tests
 python manage.py test
-
-# Run specific test module
-python manage.py test api.tests.test_attendance
-
-# Run with coverage
-coverage run --source='.' manage.py test
+coverage run manage.py test
 coverage report
 ```
 
-### Run Linter
+- ✅ Unit Tests
+- ✅ Integration Tests
+
+## 🐳 Docker Deployment
 
 ```bash
-# Install flake8
-pip install flake8
-
-# Run linter
-flake8 api/ inference/
+docker build -t attendance-backend .
+docker run -p 8000:8000 --env-file .env attendance-backend
 ```
-
----
-
-## 📦 Requirements
-
-Create `requirements.txt`:
-
-```txt
-Django==4.2.5
-djangorestframework==3.14.0
-djangorestframework-simplejwt==5.3.0
-django-cors-headers==4.2.0
-Pillow==10.0.0
-opencv-python==4.8.0.74
-numpy==1.24.3
-python-dotenv==1.0.0
-psycopg2-binary==2.9.7  # PostgreSQL adapter
-celery==5.3.1  # Optional
-redis==4.6.0  # Optional
-```
-
-Install all:
-```bash
-pip install -r requirements.txt
-```
-
----
-
-## 🔐 Security Best Practices
-
-### Development
-- Use strong `SECRET_KEY`
-- Enable `DEBUG=True` only in development
-- Use SQLite for local testing
-
-### Production
-- Set `DEBUG=False`
-- Use PostgreSQL database
-- Configure HTTPS/SSL
-- Use environment variables for secrets
-- Enable CSRF protection
-- Configure proper CORS origins
-- Implement rate limiting
-- Use secure JWT tokens
-- Encrypt facial embeddings at rest
-- Implement data retention policies
-
----
-
-## 🚀 Deployment
-
-### Using Gunicorn (Production)
-
-```bash
-# Install gunicorn
-pip install gunicorn
-
-# Run with gunicorn
-gunicorn app.wsgi:application --bind 0.0.0.0:8000 --workers 4
-```
-
-### Using Docker
-
-```bash
-# Build image
-docker build -t cavs-backend .
-
-# Run container
-docker run -p 8000:8000 --env-file .env cavs-backend
-```
-
-### Using Docker Compose
-
-See `../infra/docker-compose.yml` for full-stack deployment.
-
----
-
-## 📊 Database Schema
-
-### Students
-```sql
-id (UUID, PK)
-student_number (VARCHAR, UNIQUE)
-full_name (VARCHAR)
-email (VARCHAR)
-department (VARCHAR)
-year (INT)
-embeddings (JSON)  -- Facial embeddings
-created_at (TIMESTAMP)
-```
-
-### Devices
-```sql
-id (UUID, PK)
-device_id (VARCHAR, UNIQUE)
-classroom_id (VARCHAR)
-location (VARCHAR)
-status (VARCHAR)  -- active/inactive/error
-last_seen (TIMESTAMP)
-```
-
-### Attendance Records
-```sql
-id (UUID, PK)
-device_id (FK)
-classroom_id (VARCHAR)
-captured_image_path (VARCHAR)
-predicted_student_id (FK, NULL)
-predicted_name (VARCHAR)
-confidence (FLOAT)
-timestamp (TIMESTAMP)
-review_status (VARCHAR)  -- pending/approved/rejected
-reviewer_id (FK, NULL)
-review_timestamp (TIMESTAMP, NULL)
-notes (TEXT)
-```
-
-### Audit Logs
-```sql
-id (UUID, PK)
-user_id (FK)
-action (VARCHAR)
-target_table (VARCHAR)
-target_id (VARCHAR)
-meta (JSON)
-timestamp (TIMESTAMP)
-```
-
----
-
-## 🐛 Troubleshooting
-
-### Port 8000 Already in Use
-
-```bash
-# Run on different port
-python manage.py runserver 8080
-```
-
-### Database Migration Issues
-
-```bash
-# Reset database (WARNING: deletes all data)
-python manage.py flush
-python manage.py migrate
-
-# Or delete db.sqlite3 and migrate again
-rm db.sqlite3
-python manage.py migrate
-```
-
-### Module Import Errors
-
-```bash
-# Reinstall dependencies
-pip install --upgrade -r requirements.txt
-```
-
-### CORS Issues
-
-Check `CORS_ALLOWED_ORIGINS` in settings and `.env`
-
----
-
-## 👥 Contributing
-
-See main [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
-
----
 
 ## 📄 License
 
-MIT License - See [LICENSE](../LICENSE)
-
----
+MIT License
 
 ## 👨‍💻 Team
 
-**Project Lead:** Abenezer Markos  
-**Frontend Developer:** Melkamu Wako  
-**Institution:** ASTU (Adama Science and Technology University)  
-**Department:** Material Science & Engineering / Economics
+Project Lead: Abenezer Markos
 
----
-
-**For frontend setup, see `../frontend/README.md`**  
-**For full project documentation, see main `../README.md`**
-
+Backend Engineer: Menwuyelet Temesgen
