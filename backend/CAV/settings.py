@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     ## generic
     'rest_framework',
+    'rest_framework_simplejwt',
     
     ## custom
     'api.apps.ApiConfig',
@@ -103,6 +104,26 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+]
+
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# REST framework
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+}
+
+# CORS (if devices or frontend on different host)
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    # add your device endpoint if using ngrok for dev
 ]
 
 
