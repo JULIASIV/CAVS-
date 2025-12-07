@@ -32,7 +32,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-600 via-primary-500 to-accent-500 flex justify-center items-start p-6 relative overflow-x-hidden overflow-y-auto">
+    <div className="min-h-screen bg-gradient-to-br from-primary-600 via-primary-500 to-accent-500 flex justify-center items-center p-4 relative overflow-x-hidden overflow-y-auto">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl"></div>
@@ -41,22 +41,22 @@ const Login = () => {
 
       <div className="max-w-md w-full relative z-10">
         {/* Welcome Banner */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center mb-4">
-            <AcademicCapIcon className="h-16 w-16 text-white" />
+        <div className="text-center mb-4">
+          <div className="inline-flex items-center justify-center mb-3">
+            <AcademicCapIcon className="h-14 w-14 text-white" />
           </div>
-          <h1 className="text-4xl font-display font-bold text-white mb-2">
+          <h1 className="text-3xl font-display font-bold text-white mb-1">
             Welcome to ASTU
           </h1>
-          <p className="text-primary-100 text-lg">
+          <p className="text-primary-100 text-base">
             Smart Attendance Management System
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-2xl p-8 backdrop-blur-lg">
+        <div className="bg-white rounded-2xl shadow-2xl p-6 backdrop-blur-lg">
           <div className="text-center mb-6">
             <div className="flex justify-center mb-4">
-              <div className="h-24 w-24 rounded-full overflow-hidden bg-white shadow-lg border-4 border-primary-100">
+              <div className="h-20 w-20 rounded-full overflow-hidden bg-white shadow-lg border-4 border-primary-100">
                 <img 
                   src="/astu.jpg" 
                   alt="ASTU Logo" 
@@ -145,7 +145,7 @@ const Login = () => {
         </div>
 
         <p className="text-center text-sm text-gray-600 mt-4">
-          © 2024 ASTU - Smart Attendance System
+          © 2025 ASTU - Smart Attendance System
         </p>
       </div>
     </div>

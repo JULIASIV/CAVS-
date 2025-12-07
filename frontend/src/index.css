@@ -25,8 +25,16 @@
     @apply bg-gray-50;
   }
 
+  body.dark {
+    @apply bg-gray-900;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     @apply font-display;
+  }
+
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    @apply text-white;
   }
 }
 
@@ -143,5 +151,66 @@
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-primary-600;
+}
+
+/* Dark Mode Styles */
+.dark ::-webkit-scrollbar-track {
+  @apply bg-gray-800;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  @apply bg-gray-600;
+}
+
+.dark .card {
+  @apply bg-gray-800 border-gray-700;
+}
+
+.dark .input-field {
+  @apply bg-gray-700 border-gray-600 text-white;
+}
+
+.dark .input-field::placeholder {
+  @apply text-gray-400;
+}
+
+.dark .page-header {
+  @apply border-gray-700;
+}
+
+.dark .stat-card {
+  @apply bg-gray-800 border-gray-700;
+}
+
+.dark .text-gray-900 {
+  @apply text-white;
+}
+
+.dark .text-gray-600 {
+  @apply text-gray-300;
+}
+
+.dark .text-gray-500 {
+  @apply text-gray-400;
+}
+
+.dark .bg-gray-50 {
+  @apply bg-gray-900;
+}
+
+.dark .bg-gray-100 {
+  @apply bg-gray-800;
+}
+
+.dark .bg-white {
+  @apply bg-gray-800;
+}
+
+.dark .border-gray-200 {
+  @apply border-gray-700;
+}
+
+.dark .border-gray-100 {
+  @apply border-gray-700;
 }
 
