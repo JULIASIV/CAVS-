@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Check for stored user session
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem('user');       
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }

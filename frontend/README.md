@@ -364,11 +364,10 @@ MIT License - See [LICENSE](../LICENSE)
 ---
 
 ## 👨‍💻 Team
-
+**Team Name:** Team Alpha
 **Project Lead:** Abenezer Markos  
 **Frontend Developer:** Melkamu Wako  
 **Institution:** ASTU (Adama Science and Technology University)  
-**Department:** Material Science & Engineering / Economics
 
 ---
 
