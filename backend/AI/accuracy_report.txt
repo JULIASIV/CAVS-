@@ -1,0 +1,14 @@
+Total evaluated images (excluding NO_FACE): 31
+Correct predictions: 0
+Overall accuracy: 0.0000
+
+Per-class metrics:
+0: support=6, TP=0, FP=0, FN=6, precision=0.0000, recall=0.0000
+1: support=0, TP=0, FP=31, FN=0, precision=0.0000, recall=0.0000
+2: support=11, TP=0, FP=0, FN=11, precision=0.0000, recall=0.0000
+3: support=14, TP=0, FP=0, FN=14, precision=0.0000, recall=0.0000
+
+Confusion non-zero entries:
+0 -> 1: 6
+2 -> 1: 11
+3 -> 1: 14
