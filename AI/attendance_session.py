@@ -1,6 +1,13 @@
 from threading import Thread, Event
-from attendance_system import detect
 import time
+
+# Prefer improved detector when available
+try:
+    from recognize import detect
+    _USING_IMPROVED = True
+except Exception:
+    from recognize import detect
+    _USING_IMPROVED = False
 
 stop_event = Event()
 result_container = []
