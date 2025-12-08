@@ -36,7 +36,7 @@ def detect(stop_event, result_container):
     # START WEBCAM
     # -----------------------------
     cap = cv2.VideoCapture(0)
-    print("[recognize] Webcam started... press Q to exit")
+    print("[recognize] Webcam started...")
 
     # Keep track of recognized students
     recognized_names = set()
