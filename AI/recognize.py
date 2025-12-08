@@ -6,8 +6,12 @@ from datetime import datetime
 # -----------------------------
 # CONFIG
 # -----------------------------
-MODEL_PATH = r"C:\Users\j\Desktop\git tutor\student_attendace_system\models\face_recognizer.yml"
-LABELS_PATH = r"C:\Users\j\Desktop\git tutor\student_attendace_system\models\labels.json"
+import os
+
+# Prefer repository-local paths. Keep them relative so this project works across machines.
+REPO_ROOT = os.path.dirname(__file__)
+MODEL_PATH = os.path.join(REPO_ROOT, "models", "face_recognizer.yml")
+LABELS_PATH = os.path.join(REPO_ROOT, "models", "labels.json")
 CONFIDENCE_THRESHOLD = 90  # Lower = more accurate
 FACE_SIZE = (150, 150)     # Resize faces for recognition
 
@@ -15,6 +19,13 @@ FACE_SIZE = (150, 150)     # Resize faces for recognition
 # LOAD LABELS
 # -----------------------------
 def detect(stop_event, result_container):
+    # Validate model and label files exist and give helpful errors
+    if not os.path.exists(LABELS_PATH):
+        print(f"[recognize] ERROR: labels file not found at {LABELS_PATH}")
+        print("Create './models/labels.json' or update LABELS_PATH in recognize.py")
+        stop_event.set()
+        return
+
     with open(LABELS_PATH, "r") as f:
         label_dict = json.load(f)
 
@@ -24,8 +35,25 @@ def detect(stop_event, result_container):
     # -----------------------------
     # LOAD MODEL
     # -----------------------------
+    # Ensure OpenCV face module is available (needs opencv-contrib-python)
+    if not hasattr(cv2, 'face'):
+        print("[recognize] ERROR: cv2.face module not found. Install 'opencv-contrib-python' not just 'opencv-python'.")
+        stop_event.set()
+        return
+
+    if not os.path.exists(MODEL_PATH):
+        print(f"[recognize] ERROR: model file not found at {MODEL_PATH}")
+        print("Train a recognizer or copy a trained model to './models/face_recognizer.yml'")
+        stop_event.set()
+        return
+
     recognizer = cv2.face.LBPHFaceRecognizer_create()
-    recognizer.read(MODEL_PATH)
+    try:
+        recognizer.read(MODEL_PATH)
+    except Exception as exc:
+        print(f"[recognize] ERROR reading model: {exc}")
+        stop_event.set()
+        return
 
     # -----------------------------
     # LOAD HAAR CASCADE
@@ -36,7 +64,7 @@ def detect(stop_event, result_container):
     # START WEBCAM
     # -----------------------------
     cap = cv2.VideoCapture(0)
-    print("[recognize] Webcam started... press Q to exit")
+    print("[recognize] Webcam started...")
 
     # Keep track of recognized students
     recognized_names = set()
