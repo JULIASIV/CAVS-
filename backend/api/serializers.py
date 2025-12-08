@@ -2,8 +2,7 @@
 from rest_framework import serializers
 from .models import (
     User, DepBatch, Section, Student, Course,
-    AttendanceSession, AttendanceRecord, CameraDevice,
-    CameraCapture, AIRecognitionResult
+    AttendanceSession, AttendanceRecord
 )
 
 # ---------- Users ----------
@@ -64,61 +63,61 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "code", "teacher", "teacher_id"]
 
 # ---------- CameraDevice ----------
-class CameraDeviceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CameraDevice
-        fields = ["id", "device_id", "name", "location", "ip_address", "mac_address", "status", "last_seen", "registered_at"]
+# class CameraDeviceSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = CameraDevice
+#         fields = ["id", "device_id", "name", "location", "ip_address", "mac_address", "status", "last_seen", "registered_at"]
 
 # create serializer for admin to create device with device_key
-class CameraDeviceCreateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CameraDevice
-        fields = ["device_id", "name", "location", "ip_address", "mac_address"]
+# class CameraDeviceCreateSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = CameraDevice
+#         fields = ["device_id", "name", "location", "ip_address", "mac_address"]
 
-    def create(self, validated_data):
-        import secrets
-        device_key = secrets.token_urlsafe(32)
-        device = CameraDevice.objects.create(**validated_data)
-        # attach device_key attribute (persist as field if present)
-        if hasattr(device, "device_key"):
-            device.device_key = device_key
-            device.save(update_fields=["device_key"])
-        else:
-            # if model doesn't have device_key field, set attr for admin usage (not persisted)
-            device.device_key = device_key
-        # return device (with device_key accessible server-side)
-        return device
+#     def create(self, validated_data):
+#         import secrets
+#         device_key = secrets.token_urlsafe(32)
+#         device = CameraDevice.objects.create(**validated_data)
+#         # attach device_key attribute (persist as field if present)
+#         if hasattr(device, "device_key"):
+#             device.device_key = device_key
+#             device.save(update_fields=["device_key"])
+#         else:
+#             # if model doesn't have device_key field, set attr for admin usage (not persisted)
+#             device.device_key = device_key
+#         # return device (with device_key accessible server-side)
+#         return device
 
 # ---------- Attendance Session ----------
 class AttendanceSessionSerializer(serializers.ModelSerializer):
     course = CourseSerializer(read_only=True)
     course_id = serializers.PrimaryKeyRelatedField(queryset=Course.objects.all(), source="course", write_only=True)
     created_by = UserSerializer(read_only=True)
-    camera = CameraDeviceSerializer(read_only=True)
-    camera_id = serializers.PrimaryKeyRelatedField(queryset=CameraDevice.objects.all(), source="camera", write_only=True)
+    # camera = CameraDeviceSerializer(read_only=True)
+    # camera_id = serializers.PrimaryKeyRelatedField(queryset=CameraDevice.objects.all(), source="camera", write_only=True)
 
     class Meta:
         model = AttendanceSession
-        fields = ["id", "course", "course_id", "date", "created_by", "camera", "camera_id", "created_at", "is_active"]
+        fields = ["id", "course", "course_id", "date", "created_by", "section", "created_at", "is_active"]
 
 # ---------- CameraCapture ----------
-class CameraCaptureSerializer(serializers.ModelSerializer):
-    camera = CameraDeviceSerializer(read_only=True)
-    session = AttendanceSessionSerializer(read_only=True)
-    image = serializers.ImageField()
+# class CameraCaptureSerializer(serializers.ModelSerializer):
+#     camera = CameraDeviceSerializer(read_only=True)
+#     session = AttendanceSessionSerializer(read_only=True)
+#     image = serializers.ImageField()
 
-    class Meta:
-        model = CameraCapture
-        fields = ["id", "session", "camera", "image", "captured_at", "processed"]
+#     class Meta:
+#         model = CameraCapture
+#         fields = ["id", "session", "camera", "image", "captured_at", "processed"]
 
 # ---------- AIRecognitionResult ----------
-class AIRecognitionResultSerializer(serializers.ModelSerializer):
-    capture = CameraCaptureSerializer(read_only=True)
-    student = StudentSerializer(read_only=True)
+# class AIRecognitionResultSerializer(serializers.ModelSerializer):
+#     capture = CameraCaptureSerializer(read_only=True)
+#     student = StudentSerializer(read_only=True)
 
-    class Meta:
-        model = AIRecognitionResult
-        fields = ["id", "capture", "student", "confidence", "is_identified", "processed_at"]
+#     class Meta:
+#         model = AIRecognitionResult
+#         fields = ["id", "capture", "student", "confidence", "is_identified", "processed_at"]
 
 # ---------- AttendanceRecord ----------
 class AttendanceRecordSerializer(serializers.ModelSerializer):

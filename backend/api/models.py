@@ -315,42 +315,6 @@ class Course(models.Model):
         return f"{self.code} - {self.name}"
 
 
-# ===========================
-# ✅ ESP32 CAMERA DEVICE MODEL
-# ===========================
-
-class CameraDevice(models.Model):
-    DEVICE_STATUS = (
-        ("online", "Online"),
-        ("offline", "Offline"),
-        ("blocked", "Blocked"),
-    )
-
-    device_id = models.CharField(max_length=100, unique=True)
-    name = models.CharField(max_length=150)
-    location = models.CharField(max_length=150, blank=True, null=True)
-
-    ip_address = models.GenericIPAddressField()
-    mac_address = models.CharField(max_length=50, unique=True)
-
-    status = models.CharField(
-        max_length=20,
-        choices=DEVICE_STATUS,
-        default="offline"
-    )
-
-    last_seen = models.DateTimeField(null=True, blank=True)
-    registered_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.name} ({self.device_id})"
-
-
-# ===========================
-# ✅ ATTENDANCE SESSION
-# (Camera Controlled by Backend)
-# ===========================
-
 class AttendanceSession(models.Model):
     course = models.ForeignKey(
         Course,
@@ -358,79 +322,25 @@ class AttendanceSession(models.Model):
         related_name="sessions"
     )
 
-    date = models.DateField(default=timezone.now)
+    date = models.DateField(auto_now_add=True)
 
     created_by = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name="attendance_sessions"
     )
-
-    camera = models.ForeignKey(
-        CameraDevice,
+    section = models.ForeignKey(
+        Section,
         on_delete=models.CASCADE,
-        related_name="sessions"
+        related_name="attendance_sessions"
     )
+
 
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.course.code} - {self.date}"
-
-
-# ===========================
-# ✅ RAW IMAGES FROM ESP32
-# ===========================
-
-class CameraCapture(models.Model):
-    session = models.ForeignKey(
-        AttendanceSession,
-        on_delete=models.CASCADE,
-        related_name="captures"
-    )
-
-    camera = models.ForeignKey(
-        CameraDevice,
-        on_delete=models.CASCADE,
-        related_name="captures"
-    )
-
-    image = models.ImageField(upload_to="camera_captures/")
-    captured_at = models.DateTimeField(auto_now_add=True)
-
-    processed = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"Capture {self.id} - {self.captured_at}"
-
-
-# ===========================
-# ✅ AI IDENTIFICATION LOG
-# ===========================
-
-class AIRecognitionResult(models.Model):
-    capture = models.OneToOneField(
-        CameraCapture,
-        on_delete=models.CASCADE,
-        related_name="ai_result"
-    )
-
-    student = models.ForeignKey(
-        Student,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-    )
-
-    confidence = models.FloatField()
-    is_identified = models.BooleanField(default=False)
-
-    processed_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"AI Result - {self.capture.id}"
-
 
 # ===========================
 # ✅ FINAL ATTENDANCE RECORD
@@ -478,3 +388,9 @@ class AttendanceRecord(models.Model):
 
     def __str__(self):
         return f"{self.student.student_code} - {self.status}"
+
+
+class AIRecognitionResult(models.Model):
+    session = models.ForeignKey(AttendanceSession, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)

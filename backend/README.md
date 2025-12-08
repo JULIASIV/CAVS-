@@ -5,7 +5,6 @@ Strict Automated Attendance System with Device-Side Face Recognition
 This backend receives only recognized student IDs from devices, manages course-based attendance sessions, and allows teachers to review and edit attendance.
 
 ## 📋 Quick Start
-
 ### Prerequisites
 
 - Python 3.9+
