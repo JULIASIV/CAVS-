@@ -91,6 +91,8 @@ for person in os.listdir(DATASET_DIR):
 print(f"[train] total samples: {len(faces)}")
 print(f"[train] labels found: {label_dict}")
 
+# docker exec -it 7587f0f898fd  python manage.py migrate
+
 # -----------------------------
 # TRAIN MODEL
 # -----------------------------
