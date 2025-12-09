@@ -1,6 +1,6 @@
 # api/views.py
 from AI.attendance_session import start_session, stop_session
-from rest_framework import viewsets, status, generics, permissions
+from rest_framework import viewsets, status, generics, permissions, serializers
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -17,13 +17,50 @@ from .serializers import (
 )
 from .permissions import IsTeacher, IsAdmin
 
+
+from .permissions import IsTeacher, IsAdmin
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+# -------------------- Custom Token Serializer --------------------
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """Custom serializer that includes user info in token response"""
+    
+    def validate(self, attrs):
+        try:
+            data = super().validate(attrs)
+        except Exception as e:
+            # Provide clearer error message
+            raise serializers.ValidationError({
+                'error': 'Invalid email or password. Please check your credentials and ensure you have registered.',
+                'detail': str(e)
+            })
+        
+        # Add user information to response
+        user = self.user
+        data['user'] = {
+            'id': str(user.id),
+            'email': user.email,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'role': user.role,
+        }
+        
+        return data
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    """Custom login view that returns user data"""
+    serializer_class = CustomTokenObtainPairSerializer
+
+
 # import your ai function - must exist
 # ##from ai_engine.predictor import identify_student  # identify_student(image_path_or_bytes) -> (student_id or None, confidence)
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAdminUser]
 
 class MeView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
