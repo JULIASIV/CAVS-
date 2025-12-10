@@ -1,417 +1,206 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MagnifyingGlassIcon, PlusIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import api, { studentsAPI } from '../services/api';
 
 const Students = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [students, setStudents] = useState([]);
+  const [sections, setSections] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const [formData, setFormData] = useState({
-    name: '',
-    studentId: '',
-    email: '',
+    first_name: '',
+    last_name: '',
+    student_code: '',
     department: '',
     year: '',
   });
 
-  const [students, setStudents] = useState([
-    {
-      id: 1,
-      name: 'Abenezer Markos',
-      studentId: 'ASTU/1234/20',
-      email: 'abenezer.markos@astu.edu',
-      department: 'Material Science',
-      year: '2020',
-      enrollmentDate: '2020-09-01',
-      attendanceRate: 92,
-    },
-    {
-      id: 2,
-      name: 'Arsema Ayele',
-      studentId: 'ASTU/1235/20',
-      email: 'arsema.ayele@astu.edu',
-      department: 'Computer Science',
-      year: '2020',
-      enrollmentDate: '2020-09-01',
-      attendanceRate: 88,
-    },
-    {
-      id: 3,
-      name: 'Melkamu Wako',
-      studentId: 'ASTU/1236/20',
-      email: 'melkamu.wako@astu.edu',
-      department: 'Economics',
-      year: '2019',
-      enrollmentDate: '2019-09-01',
-      attendanceRate: 95,
-    },
-    {
-      id: 4,
-      name: 'Nigus Hagos',
-      studentId: 'ASTU/1237/20',
-      email: 'nigus.hagos@astu.edu',
-      department: 'Software Engineering',
-      year: '2021',
-      enrollmentDate: '2021-09-01',
-      attendanceRate: 78,
-    },
-    {
-      id: 5,
-      name: 'Bethlehem Tesfaye',
-      studentId: 'ASTU/1238/20',
-      email: 'bethlehem.tesfaye@astu.edu',
-      department: 'Information Systems',
-      year: '2020',
-      enrollmentDate: '2020-09-01',
-      attendanceRate: 91,
-    },
-    {
-      id: 6,
-      name: 'Dawit Haile',
-      studentId: 'ASTU/1239/20',
-      email: 'dawit.haile@astu.edu',
-      department: 'Computer Science',
-      year: '2021',
-      enrollmentDate: '2021-09-01',
-      attendanceRate: 85,
-    },
-    {
-      id: 7,
-      name: 'Hanna Kebede',
-      studentId: 'ASTU/1240/20',
-      email: 'hanna.kebede@astu.edu',
-      department: 'Material Science',
-      year: '2020',
-      enrollmentDate: '2020-09-01',
-      attendanceRate: 94,
-    },
-    {
-      id: 8,
-      name: 'Yohannes Alemu',
-      studentId: 'ASTU/1241/20',
-      email: 'yohannes.alemu@astu.edu',
-      department: 'Economics',
-      year: '2019',
-      enrollmentDate: '2019-09-01',
-      attendanceRate: 89,
-    },
-    {
-      id: 9,
-      name: 'Ruth Girma',
-      studentId: 'ASTU/1242/20',
-      email: 'ruth.girma@astu.edu',
-      department: 'Information Technology',
-      year: '2021',
-      enrollmentDate: '2021-09-01',
-      attendanceRate: 87,
-    },
-    {
-      id: 10,
-      name: 'Kidus Mekonnen',
-      studentId: 'ASTU/1243/20',
-      email: 'kidus.mekonnen@astu.edu',
-      department: 'Software Engineering',
-      year: '2020',
-      enrollmentDate: '2020-09-01',
-      attendanceRate: 93,
-    },
-  ]);
+  useEffect(() => {
+    fetchStudents();
+    fetchSections();
+  }, []);
 
-  const filteredStudents = students.filter(
-    (student) =>
-      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.studentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleOpenModal = (student = null) => {
-    if (student) {
-      setEditingStudent(student);
-      setFormData({
-        name: student.name,
-        studentId: student.studentId,
-        email: student.email,
-        department: student.department,
-        year: student.year,
-      });
-    } else {
-      setEditingStudent(null);
-      setFormData({
-        name: '',
-        studentId: '',
-        email: '',
-        department: '',
-        year: '',
-      });
+  const fetchStudents = async () => {
+    try {
+      setLoading(true);
+      const res = await studentsAPI.getAll();
+      const list = Array.isArray(res) ? res : res.results || [];
+      setStudents(list);
+      setError('');
+    } catch (err) {
+      console.error('Failed to fetch students:', err);
+      setError('Unable to load students.');
+      setStudents([]);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const fetchSections = async () => {
+    try {
+      const res = await api.get('/api/sections/');
+      const data = res.data;
+      setSections(Array.isArray(data) ? data : data.results || []);
+    } catch (err) {
+      console.error('Failed to fetch sections:', err);
+      setSections([]);
+    }
+  };
+
+  const filteredStudents = students.filter((s) => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      (s.first_name && s.first_name.toLowerCase().includes(q)) ||
+      (s.last_name && s.last_name.toLowerCase().includes(q)) ||
+      (s.student_code && s.student_code.toLowerCase().includes(q))
+    );
+  });
+
+  const openAddModal = () => {
+    setEditingStudent(null);
+    setFormData({ first_name: '', last_name: '', student_code: '', department: '', year: '', section_id: '' });
     setShowModal(true);
   };
 
-  const handleCloseModal = () => {
+  const openEditModal = (student) => {
+    setEditingStudent(student);
+    setFormData({
+      first_name: student.first_name || '',
+      last_name: student.last_name || '',
+      student_code: student.student_code || '',
+      department: student.department || '',
+      year: student.year || '',
+      section_id: student.section?.id || '',
+    });
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
     setShowModal(false);
     setEditingStudent(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingStudent) {
-      setStudents(students.map(s => 
-        s.id === editingStudent.id 
-          ? { ...formData, id: editingStudent.id, enrollmentDate: s.enrollmentDate, attendanceRate: s.attendanceRate }
-          : s
-      ));
-    } else {
-      const newStudent = {
-        ...formData,
-        id: Math.max(...students.map(s => s.id)) + 1,
-        enrollmentDate: new Date().toISOString().split('T')[0],
-        attendanceRate: 0,
-      };
-      setStudents([...students, newStudent]);
+    try {
+      if (editingStudent) {
+        await studentsAPI.update(editingStudent.id, formData);
+      } else {
+        await studentsAPI.create(formData);
+      }
+      await fetchStudents();
+      closeModal();
+    } catch (err) {
+      console.error('Save student error:', err);
+      setError('Failed to save student.');
     }
-    handleCloseModal();
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this student?')) {
-      setStudents(students.filter(s => s.id !== id));
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this student?')) return;
+    try {
+      await studentsAPI.delete(id);
+      await fetchStudents();
+    } catch (err) {
+      console.error('Delete error:', err);
+      setError('Failed to delete student.');
     }
   };
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Students</h1>
-          <p className="text-gray-600 mt-1">Manage enrolled students</p>
+          <p className="text-gray-600 mt-1">Manage registered students.</p>
         </div>
-        <button 
-          onClick={() => handleOpenModal()}
-          className="btn-primary flex items-center gap-2"
-        >
+        <button onClick={openAddModal} className="btn-primary flex items-center gap-2">
           <PlusIcon className="h-5 w-5" />
           Add Student
         </button>
       </div>
 
+      {error && <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg">{error}</div>}
+
       <div className="card mb-6">
-        <div className="flex items-center gap-4">
-          <div className="flex-1 relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search students by name, ID, or email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="input-field pl-10"
-            />
-          </div>
+        <div className="relative">
+          <MagnifyingGlassIcon className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+          <input
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg"
+            placeholder="Search by name or student code"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
-        {filteredStudents.map((student) => (
-          <div key={student.id} className="card card-hover">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="h-14 w-14 rounded-full bg-primary-100 flex items-center justify-center">
-                  <span className="text-primary-700 text-xl font-semibold">
-                    {student.name.charAt(0)}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 text-lg">{student.name}</h3>
-                  <p className="text-sm text-gray-600">{student.studentId}</p>
-                  <p className="text-sm text-gray-500">{student.email}</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="mb-2">
-                  <span className="text-sm text-gray-500">Department:</span>
-                  <span className="ml-2 text-sm font-medium text-gray-900">
-                    {student.department}
-                  </span>
-                </div>
-                <div className="mb-2">
-                  <span className="text-sm text-gray-500">Year:</span>
-                  <span className="ml-2 text-sm font-medium text-gray-900">{student.year}</span>
-                </div>
-                <div>
-                  <span className="text-sm text-gray-500">Attendance Rate:</span>
-                  <span
-                    className={`ml-2 text-sm font-semibold ${
-                      student.attendanceRate >= 90
-                        ? 'text-green-600'
-                        : student.attendanceRate >= 75
-                        ? 'text-yellow-600'
-                        : 'text-red-600'
-                    }`}
-                  >
-                    {student.attendanceRate}%
-                  </span>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button 
-                  onClick={() => handleOpenModal(student)}
-                  className="px-4 py-2 text-sm text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg font-medium"
-                >
-                  Edit
-                </button>
-                <button 
-                  onClick={() => handleDelete(student.id)}
-                  className="px-4 py-2 text-sm text-danger-600 hover:text-danger-700 hover:bg-danger-50 rounded-lg font-medium"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {filteredStudents.length === 0 && (
+      {loading ? (
+        <div className="text-center py-8 text-gray-500">Loading students...</div>
+      ) : filteredStudents.length === 0 ? (
         <div className="card text-center py-12">
           <UserCircleIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-500">No students found</p>
         </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4">
+          {filteredStudents.map((s) => (
+            <div key={s.id} className="card card-hover">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-full bg-primary-100 flex items-center justify-center">
+                    <span className="text-primary-700 text-lg font-semibold">
+                      {((s.first_name || s.last_name) ? (s.first_name || '').charAt(0) || (s.last_name || '').charAt(0) : '?')}
+                    </span>
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-900">{s.first_name} {s.last_name}</div>
+                    <div className="text-sm text-gray-500">{s.student_code || 'N/A'}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => openEditModal(s)} className="px-3 py-1 text-sm text-primary-600">Edit</button>
+                  <button onClick={() => handleDelete(s.id)} className="px-3 py-1 text-sm text-red-600">Delete</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
-      {/* Add/Edit Student Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {editingStudent ? 'Edit Student' : 'Add New Student'}
-              </h2>
-            </div>
-
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">{editingStudent ? 'Edit Student' : 'Add New Student'}</h2>
+            <form onSubmit={handleSubmit} className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Full Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="input-field"
-                  placeholder="e.g., John Doe"
-                />
+                <label className="block text-sm text-gray-700 mb-1">First Name</label>
+                <input value={formData.first_name} onChange={(e) => setFormData({ ...formData, first_name: e.target.value })} className="w-full px-3 py-2 border rounded" required />
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Student ID *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.studentId}
-                  onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
-                  className="input-field"
-                  placeholder="e.g., ASTU/1234/20"
-                />
+                <label className="block text-sm text-gray-700 mb-1">Last Name</label>
+                <input value={formData.last_name} onChange={(e) => setFormData({ ...formData, last_name: e.target.value })} className="w-full px-3 py-2 border rounded" required />
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email *
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="input-field"
-                  placeholder="student@astu.edu"
-                />
+                <label className="block text-sm text-gray-700 mb-1">Student Code</label>
+                <input value={formData.student_code} onChange={(e) => setFormData({ ...formData, student_code: e.target.value })} className="w-full px-3 py-2 border rounded" />
               </div>
-
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  School & Department *
-                </label>
-                <select
-                  required
-                  value={formData.department}
-                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                  className="input-field"
-                >
-                  <option value="">Select School/Department</option>
-                  
-                  <optgroup label="School of Applied Natural Sciences (SoANS)">
-                    <option value="Applied Biology">Applied Biology</option>
-                    <option value="Applied Chemistry">Applied Chemistry</option>
-                    <option value="Applied Mathematics">Applied Mathematics</option>
-                    <option value="Applied Physics">Applied Physics</option>
-                    <option value="Applied Geology">Applied Geology</option>
-                  </optgroup>
-                  
-                  <optgroup label="School of Civil Engineering & Architecture (SoCEA)">
-                    <option value="Architecture">Architecture</option>
-                    <option value="Civil Engineering">Civil Engineering</option>
-                    <option value="Construction Technology & Management">Construction Technology & Management</option>
-                    <option value="Urban Planning & Design">Urban Planning & Design</option>
-                    <option value="Geomatics Engineering">Geomatics Engineering</option>
-                    <option value="Water Resources Engineering">Water Resources Engineering</option>
-                  </optgroup>
-                  
-                  <optgroup label="School of Electrical Engineering & Computing (SoEEC)">
-                    <option value="Computer Science & Engineering">Computer Science & Engineering (CSE)</option>
-                    <option value="Electronics & Communication Engineering">Electronics & Communication Engineering (ECE)</option>
-                    <option value="Electrical Power & Control Engineering">Electrical Power & Control Engineering (EPCE)</option>
-                  </optgroup>
-                  
-                  <optgroup label="School of Mechanical, Chemical & Materials Engineering (SoMCME)">
-                    <option value="Mechanical Engineering">Mechanical Engineering</option>
-                    <option value="Chemical Engineering">Chemical Engineering</option>
-                    <option value="Materials Science & Engineering">Materials Science & Engineering</option>
-                  </optgroup>
-                  
-                  <optgroup label="School of Humanities & Social Sciences (CoHSS)">
-                    <option value="Technology & Innovation Management">Technology & Innovation Management</option>
-                    <option value="English Language & Literature">English Language & Literature</option>
-                    <option value="Social Sciences">Social Sciences</option>
-                  </optgroup>
+                <label className="block text-sm text-gray-700 mb-1">Section</label>
+                <select value={formData.section_id} onChange={(e) => setFormData({ ...formData, section_id: e.target.value })} className="w-full px-3 py-2 border rounded" required>
+                  <option value="">-- Select Section --</option>
+                  {sections.map(sec => (
+                    <option key={sec.id} value={sec.id}>{sec.name}</option>
+                  ))}
                 </select>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Year *
-                </label>
-                <select
-                  required
-                  value={formData.year}
-                  onChange={(e) => setFormData({ ...formData, year: e.target.value })}
-                  className="input-field"
-                >
-                  <option value="">Select Year</option>
-                  <option value="2019">2019</option>
-                  <option value="2020">2020</option>
-                  <option value="2021">2021</option>
-                  <option value="2022">2022</option>
-                  <option value="2023">2023</option>
-                  <option value="2024">2024</option>
-                </select>
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className="flex-1 btn-outline"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 btn-primary"
-                >
-                  {editingStudent ? 'Update Student' : 'Add Student'}
-                </button>
+              {/* Email field removed as requested */}
+              <div className="flex gap-3 justify-end">
+                <button type="button" onClick={closeModal} className="px-4 py-2 bg-gray-200 rounded">Cancel</button>
+                <button type="submit" className="px-4 py-2 bg-primary-600 text-white rounded">{editingStudent ? 'Update' : 'Create'}</button>
               </div>
             </form>
           </div>

@@ -8,47 +8,94 @@ import {
   ClockIcon,
   DocumentArrowDownIcon
 } from '@heroicons/react/24/outline';
+import { attendanceAPI, studentsAPI } from '../services/api';
 
 const Analytics = () => {
   const [timeRange, setTimeRange] = useState('week');
   const [stats, setStats] = useState({
-    totalAttendance: 1245,
-    averageRate: 87.5,
-    trend: 5.2,
-    peakTime: '9:00 AM',
-    mostActiveDay: 'Tuesday'
+    totalAttendance: 0,
+    averageRate: 0,
+    trend: 0,
+    peakTime: 'N/A',
+    mostActiveDay: 'N/A'
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Mock attendance data for chart visualization
+  // Mock attendance data for chart visualization (will be replaced with API data)
   const attendanceData = {
     week: [
-      { day: 'Mon', present: 85, absent: 15 },
-      { day: 'Tue', present: 92, absent: 8 },
-      { day: 'Wed', present: 88, absent: 12 },
-      { day: 'Thu', present: 90, absent: 10 },
-      { day: 'Fri', present: 82, absent: 18 },
+      { day: 'Mon', present: 0, absent: 0 },
+      { day: 'Tue', present: 0, absent: 0 },
+      { day: 'Wed', present: 0, absent: 0 },
+      { day: 'Thu', present: 0, absent: 0 },
+      { day: 'Fri', present: 0, absent: 0 },
     ],
     month: [
-      { week: 'Week 1', present: 88, absent: 12 },
-      { week: 'Week 2', present: 91, absent: 9 },
-      { week: 'Week 3', present: 85, absent: 15 },
-      { week: 'Week 4', present: 89, absent: 11 },
+      { week: 'Week 1', present: 0, absent: 0 },
+      { week: 'Week 2', present: 0, absent: 0 },
+      { week: 'Week 3', present: 0, absent: 0 },
+      { week: 'Week 4', present: 0, absent: 0 },
     ]
   };
 
-  const topCourses = [
-    { name: 'Data Structures', rate: 95, students: 45 },
-    { name: 'Web Development', rate: 92, students: 50 },
-    { name: 'Database Systems', rate: 88, students: 42 },
-    { name: 'Operating Systems', rate: 85, students: 38 },
-  ];
+  const [topCourses, setTopCourses] = useState([]);
+  const [departmentStats, setDepartmentStats] = useState([]);
 
-  const departmentStats = [
-    { name: 'Computer Science', rate: 91, color: 'bg-blue-500' },
-    { name: 'Software Engineering', rate: 89, color: 'bg-green-500' },
-    { name: 'Information Systems', rate: 87, color: 'bg-yellow-500' },
-    { name: 'IT', rate: 85, color: 'bg-purple-500' },
-  ];
+  // Fetch analytics data from API
+  useEffect(() => {
+    const fetchAnalyticsData = async () => {
+      try {
+        setLoading(true);
+        
+        // Fetch attendance records
+        const attendanceResponse = await attendanceAPI.getAll();
+        const attendanceRecords = Array.isArray(attendanceResponse) 
+          ? attendanceResponse 
+          : attendanceResponse.results || [];
+        
+        // Fetch all students
+        const studentsResponse = await studentsAPI.getAll();
+        const studentsList = Array.isArray(studentsResponse) 
+          ? studentsResponse 
+          : studentsResponse.results || [];
+
+        // Calculate stats
+        const totalAttendance = attendanceRecords.length;
+        const presentCount = attendanceRecords.filter(r => r.status === 'present').length;
+        const averageRate = totalAttendance > 0 
+          ? Math.round((presentCount / totalAttendance) * 100)
+          : 0;
+
+        setStats({
+          totalAttendance: totalAttendance,
+          averageRate: averageRate,
+          trend: 2.5, // Placeholder
+          peakTime: '9:00 AM',
+          mostActiveDay: 'Tuesday'
+        });
+
+        // Set placeholder courses (will need actual course data from API)
+        setTopCourses([
+          { name: 'Course 1', rate: averageRate, students: studentsList.length },
+        ]);
+
+        // Set placeholder departments
+        setDepartmentStats([
+          { name: 'General', rate: averageRate, color: 'bg-blue-500' },
+        ]);
+
+        setError('');
+      } catch (err) {
+        console.error('Failed to fetch analytics data:', err);
+        setError('Failed to load analytics data. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnalyticsData();
+  }, []);
 
   const exportReport = (format) => {
     console.log(`Exporting report as ${format}`);

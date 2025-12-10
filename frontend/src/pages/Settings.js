@@ -1,8 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { BellIcon, KeyIcon, ShieldCheckIcon, ComputerDesktopIcon, CheckCircleIcon, XCircleIcon, UserIcon } from '@heroicons/react/24/outline';
 import Toast from '../components/Toast';
+import { useAuth } from '../contexts/AuthContext';
+import { attendanceAPI } from '../services/api';  // Corrected import for the API
 
 const Settings = () => {
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState(true);
   const [emailAlerts, setEmailAlerts] = useState(true);
   const [weeklyReports, setWeeklyReports] = useState(false);
@@ -19,11 +22,23 @@ const Settings = () => {
   });
 
   const [profileForm, setProfileForm] = useState({
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john@astu.edu',
-    phone: '+251 9XX XXX XXX'
+    firstName: '',
+    lastName: '',
+    email: '',
+    teacherCode: ''
   });
+
+  // Load user profile data on mount
+  useEffect(() => {
+    if (user) {
+      setProfileForm({
+        firstName: user.first_name || '',
+        lastName: user.last_name || '',
+        email: user.email || '',
+        teacherCode: user.teacher_code || ''
+      });
+    }
+  }, [user]);
 
   const showToast = useCallback((message, type = 'success') => {
     setToast({ message, type });
@@ -59,9 +74,17 @@ const Settings = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const payload = {
+        first_name: profileForm.firstName,
+        last_name: profileForm.lastName,
+        email: profileForm.email
+      };
+      
+      // PATCH to update current user
+      await attendanceAPI.patch(`/api/users/${user.id}/`, payload);  // Corrected to use attendanceAPI
       showToast('Profile updated successfully');
     } catch (err) {
+      console.error('Failed to update profile:', err);
       showToast('Failed to update profile', 'error');
     } finally {
       setLoading(false);
@@ -149,12 +172,13 @@ const Settings = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Teacher Code</label>
               <input 
-                type="tel" 
+                type="text" 
                 className="input-field" 
-                value={profileForm.phone}
-                onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                value={profileForm.teacherCode}
+                onChange={(e) => setProfileForm({ ...profileForm, teacherCode: e.target.value })}
+                readOnly
               />
             </div>
             <button type="submit" className="btn-primary" disabled={loading}>
@@ -341,4 +365,3 @@ const Settings = () => {
 };
 
 export default Settings;
-

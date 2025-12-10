@@ -1,148 +1,151 @@
-import React, { useState } from 'react';
-import { MagnifyingGlassIcon, FunnelIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
-import { format } from 'date-fns';
+import React, { useState, useEffect } from "react";
+import {
+  MagnifyingGlassIcon,
+  ArrowDownTrayIcon,
+} from "@heroicons/react/24/outline";
+import { format } from "date-fns";
+import { attendanceAPI } from "../services/api";
 
 const AttendanceRecords = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [attendanceData, setAttendanceData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [refetchTrigger, setRefetchTrigger] = useState(0);
 
-  const attendanceData = [
-    {
-      id: 1,
-      studentName: 'Abenezer Markos',
-      studentId: 'ASTU/1234/20',
-      course: 'Machine Learning',
-      date: new Date('2024-01-15'),
-      time: '09:30 AM',
-      status: 'present',
-      verified: true,
-    },
-    {
-      id: 2,
-      studentName: 'Arsema Ayele',
-      studentId: 'ASTU/1235/20',
-      course: 'Data Structures',
-      date: new Date('2024-01-15'),
-      time: '11:15 AM',
-      status: 'present',
-      verified: true,
-    },
-    {
-      id: 3,
-      studentName: 'Melkamu Wako',
-      studentId: 'ASTU/1236/20',
-      course: 'Machine Learning',
-      date: new Date('2024-01-15'),
-      time: '09:32 AM',
-      status: 'pending',
-      verified: false,
-    },
-    {
-      id: 4,
-      studentName: 'Nigus Hagos',
-      studentId: 'ASTU/1237/20',
-      course: 'Database Systems',
-      date: new Date('2024-01-15'),
-      time: '02:00 PM',
-      status: 'present',
-      verified: true,
-    },
-    {
-      id: 5,
-      studentName: 'Bethlehem Tesfaye',
-      studentId: 'ASTU/1238/20',
-      course: 'Web Development',
-      date: new Date('2024-01-15'),
-      time: '10:45 AM',
-      status: 'pending',
-      verified: false,
-    },
-    {
-      id: 6,
-      studentName: 'Dawit Haile',
-      studentId: 'ASTU/1239/20',
-      course: 'Operating Systems',
-      date: new Date('2024-01-15'),
-      time: '01:30 PM',
-      status: 'present',
-      verified: true,
-    },
-    {
-      id: 7,
-      studentName: 'Hanna Kebede',
-      studentId: 'ASTU/1240/20',
-      course: 'Algorithms',
-      date: new Date('2024-01-15'),
-      time: '03:15 PM',
-      status: 'present',
-      verified: true,
-    },
-    {
-      id: 8,
-      studentName: 'Yohannes Alemu',
-      studentId: 'ASTU/1241/20',
-      course: 'Computer Networks',
-      date: new Date('2024-01-15'),
-      time: '08:00 AM',
-      status: 'pending',
-      verified: false,
-    },
-  ];
+  // --------------------------------------
+  // Fetch Data From Backend
+  // --------------------------------------
+  useEffect(() => {
+    const fetchAttendance = async () => {
+      try {
+        setLoading(true);
+        const response = await attendanceAPI.getAll();
 
+        // Normalize response from backend into the shape the UI expects
+        const raw = Array.isArray(response) ? response : response.results || [];
+
+        const data = raw.map((r) => {
+          const student = r.student || {};
+          const session = r.session || {};
+          const course = session.course || {};
+
+          const ts = r.timestamp || session.date || null;
+          const dateObj = ts ? new Date(ts) : null;
+
+          return {
+            id: r.id,
+            student_name: student.first_name || student.last_name ? `${(student.first_name || "").trim()} ${(student.last_name || "").trim()}`.trim() : (student.student_code || 'Unknown'),
+            student_id: student.student_code || '',
+            course: course.name || course.code || '',
+            // prefer record timestamp for date/time, fall back to session date
+            date: dateObj ? dateObj.toISOString().split('T')[0] : (session.date || ''),
+            time: dateObj ? dateObj.toLocaleTimeString() : '',
+            status: r.status,
+            // treat AI-generated records as unverified/pending
+            verified: !(r.confirmation_method && String(r.confirmation_method).toLowerCase().startsWith('ai')),
+            raw: r,
+          };
+        });
+
+        setAttendanceData(data);
+        setError("");
+      } catch (err) {
+        console.error("Failed to load attendance:", err);
+        setError("Could not load attendance. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAttendance();
+  }, [refetchTrigger]);
+
+  // --------------------------------------
+  // Filtering Logic
+  // --------------------------------------
   const filteredData = attendanceData.filter((record) => {
     const matchesSearch =
-      record.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.studentId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      record.course.toLowerCase().includes(searchTerm.toLowerCase());
+      (record.student_name || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      (record.student_id || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      (record.course || "").toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesFilter =
-      filterStatus === 'all' ||
-      (filterStatus === 'pending' && !record.verified) ||
-      (filterStatus === 'verified' && record.verified);
+      filterStatus === "all" ||
+      (filterStatus === "pending" && record.verified === false) ||
+      (filterStatus === "verified" && record.verified === true);
 
     return matchesSearch && matchesFilter;
   });
 
-  const handleApprove = (id) => {
-    console.log('Approve:', id);
+  // --------------------------------------
+  // Approve / Reject
+  // --------------------------------------
+  const handleApprove = async (id) => {
+    try {
+      await attendanceAPI.verify(id, { verified: true });
+      alert("Attendance approved successfully!");
+      setRefetchTrigger(prev => prev + 1); // Trigger refetch
+    } catch (err) {
+      console.error("Failed to approve:", err);
+      alert("Failed to approve attendance. Please try again.");
+    }
   };
 
-  const handleReject = (id) => {
-    console.log('Reject:', id);
+  const handleReject = async (id) => {
+    try {
+      await attendanceAPI.verify(id, { verified: false });
+      alert("Attendance rejected successfully!");
+      setRefetchTrigger(prev => prev + 1); // Trigger refetch
+    } catch (err) {
+      console.error("Failed to reject:", err);
+      alert("Failed to reject attendance. Please try again.");
+    }
   };
 
+  // --------------------------------------
+  // Export CSV
+  // --------------------------------------
   const handleExport = () => {
-    // Convert data to CSV format
-    const headers = ['Student Name', 'Student ID', 'Course', 'Date', 'Time', 'Status', 'Verified'];
-    const csvData = filteredData.map(record => [
-      record.studentName,
-      record.studentId,
-      record.course,
-      format(record.date, 'yyyy-MM-dd'),
-      record.time,
-      record.status,
-      record.verified ? 'Yes' : 'No'
+    const headers = [
+      "Student Name",
+      "Student ID",
+      "Course",
+      "Date",
+      "Time",
+      "Status",
+      "Verified",
+    ];
+
+    const csvData = filteredData.map((r) => [
+      r.student_name,
+      r.student_id,
+      r.course,
+      r.date,
+      r.time,
+      r.status,
+      r.verified ? "Yes" : "No",
     ]);
 
-    const csvContent = [
-      headers.join(','),
-      ...csvData.map(row => row.join(','))
-    ].join('\n');
+    const csvContent = [headers.join(","), ...csvData.map((row) => row.join(","))].join("\n");
 
-    // Create and download CSV file
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `attendance_${format(new Date(), 'yyyy-MM-dd')}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `attendance_${format(new Date(), "yyyy-MM-dd")}.csv`;
     link.click();
-    document.body.removeChild(link);
   };
 
   return (
     <div>
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Attendance Records</h1>
@@ -154,6 +157,7 @@ const AttendanceRecords = () => {
         </button>
       </div>
 
+      {/* Search + Filters */}
       <div className="card mb-6">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
@@ -166,106 +170,114 @@ const AttendanceRecords = () => {
               className="input-field pl-10"
             />
           </div>
-          <div className="flex gap-2">
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="input-field"
-            >
-              <option value="all">All Records</option>
-              <option value="pending">Pending Approval</option>
-              <option value="verified">Verified</option>
-            </select>
-          </div>
+
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="input-field"
+          >
+            <option value="all">All Records</option>
+            <option value="pending">Pending Approval</option>
+            <option value="verified">Verified</option>
+          </select>
         </div>
       </div>
 
+      {/* Table */}
       <div className="card">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Student
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Course
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Time
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredData.map((record) => (
-                <tr key={record.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="font-medium text-gray-900">{record.studentName}</div>
-                      <div className="text-sm text-gray-500">{record.studentId}</div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {record.course}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {format(record.date, 'MMM dd, yyyy')}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {record.time}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        record.status === 'present'
-                          ? 'bg-green-100 text-green-700'
-                          : record.status === 'pending'
-                          ? 'bg-yellow-100 text-yellow-700'
-                          : 'bg-red-100 text-red-700'
-                      }`}
-                    >
-                      {record.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    {!record.verified ? (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleApprove(record.id)}
-                          className="text-green-600 hover:text-green-900 font-medium"
-                        >
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => handleReject(record.id)}
-                          className="text-red-600 hover:text-red-900 font-medium"
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    ) : (
-                      <span className="text-gray-400">Verified</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {loading ? (
+          <div className="text-center py-10 text-gray-500">Loading attendance...</div>
+        ) : error ? (
+          <div className="text-center py-10 text-red-500">{error}</div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Student
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Course
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Time
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
 
-        {filteredData.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500">No attendance records found</p>
-          </div>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredData.map((record) => (
+                    <tr key={record.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="font-medium text-gray-900">{record.student_name}</div>
+                        <div className="text-sm text-gray-500">{record.student_id}</div>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {record.course}
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {format(new Date(record.date), "MMM dd, yyyy")}
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {record.time}
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            record.status === "present"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
+                          {record.status}
+                        </span>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        {!record.verified ? (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleApprove(record.id)}
+                              className="text-green-600 hover:text-green-900"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => handleReject(record.id)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400">Verified</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {filteredData.length === 0 && (
+              <div className="text-center py-12 text-gray-500">No attendance found</div>
+            )}
+          </>
         )}
       </div>
     </div>
@@ -273,4 +285,3 @@ const AttendanceRecords = () => {
 };
 
 export default AttendanceRecords;
-

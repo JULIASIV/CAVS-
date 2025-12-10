@@ -12,10 +12,9 @@
   }
 
   html, body, #root {
-    min-height: 100vh;  /* allow pages to grow taller than viewport */
+    height: 100vh;
     width: 100%;
-    overflow-x: hidden; /* keep horizontal overflow hidden */
-    overflow-y: auto;   /* normal vertical scrolling */
+    overflow: hidden; /* prevent scrolling on body, let Layout handle it */
   }
 
   body {

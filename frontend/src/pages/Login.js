@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Logo from '../components/Logo';
 import { EyeIcon, EyeSlashIcon, AcademicCapIcon } from '@heroicons/react/24/outline';
@@ -121,9 +121,9 @@ const Login = () => {
                 <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
                 <span className="ml-2 text-sm text-gray-600">Remember me</span>
               </label>
-              <a href="#" className="text-sm text-primary-600 hover:text-primary-700">
+              <Link to="/forgot-password" className="text-sm text-primary-600 hover:text-primary-700">
                 Forgot password?
-              </a>
+              </Link>
             </div>
 
             <button
@@ -136,10 +136,11 @@ const Login = () => {
           </form>
 
           <div className="mt-6 pt-6 border-t border-gray-200">
-            <p className="text-xs text-center text-gray-600">
-              Demo Credentials:<br />
-              Admin: admin@astu.edu / password<br />
-              Teacher: teacher@astu.edu / password
+            <p className="text-center text-sm text-gray-600">
+              Don't have an account?{' '}
+              <Link to="/register" className="text-primary-600 hover:text-primary-700 font-semibold">
+                Sign Up Here
+              </Link>
             </p>
           </div>
         </div>

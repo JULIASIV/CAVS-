@@ -99,7 +99,7 @@ def detect(stop_event, result_container):
 
             # Track recognized students
             if name != "Unknown" and name not in recognized_names:
-                recognized_names.add(name)
+                recognized_names.add(name[-5:])
                 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 print(f"[Attendance] {name} recognized at {timestamp}")
 

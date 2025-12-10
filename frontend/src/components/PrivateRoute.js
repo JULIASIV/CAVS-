@@ -23,7 +23,10 @@ const PrivateRoute = ({ allowedRoles }) => {
   }
 
   // Check role-based access
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  if (allowedRoles) {
+    const role = (user.role || '').toLowerCase();
+    const allowed = allowedRoles.map(r => r.toLowerCase());
+    if (!allowed.includes(role)) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-50">
         <div className="max-w-md w-full text-center p-8">
@@ -43,10 +46,9 @@ const PrivateRoute = ({ allowedRoles }) => {
         </div>
       </div>
     );
+    }
   }
 
   return <Outlet />;
 };
-
 export default PrivateRoute;
-

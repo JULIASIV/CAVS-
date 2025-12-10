@@ -60,7 +60,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.AllowAny]
 
 class MeView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
@@ -101,9 +101,9 @@ class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
 
     def get_permissions(self):
-        if self.action in ["create", "update", "destroy"]:
-            return [IsAdmin()]#permissions.AllowAny()]
-        return [permissions.IsAuthenticated()]#permissions.AllowAny()]
+        if self.action in ["create", "update", "partial_update", "destroy"]:
+            return [IsAdmin()]
+        return [permissions.IsAuthenticated()]
 
 # ---------- DepBatch & Section ----------
 class DepBatchViewSet(viewsets.ModelViewSet):
@@ -114,7 +114,11 @@ class DepBatchViewSet(viewsets.ModelViewSet):
 class SectionViewSet(viewsets.ModelViewSet):
     queryset = Section.objects.all()
     serializer_class = SectionSerializer
-    permission_classes = [IsAdmin]#permissions.AllowAny()]
+    
+    def get_permissions(self):
+        if self.action in ["create", "update", "partial_update", "destroy"]:
+            return [IsAdmin()]
+        return [permissions.IsAuthenticated()]
 
 # ---------- AttendanceSession ----------
 class AttendanceSessionViewSet(viewsets.ModelViewSet):
